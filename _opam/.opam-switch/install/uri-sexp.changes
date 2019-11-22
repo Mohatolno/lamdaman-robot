@@ -1,0 +1,20 @@
+added: [
+  "doc/uri-sexp" {"D"}
+  "doc/uri-sexp/CHANGES.md" {"F:S9320T1574440360.07"}
+  "doc/uri-sexp/LICENSE.md" {"F:S803T1574440360.08"}
+  "doc/uri-sexp/README.md" {"F:S1565T1574440360.09"}
+  "lib/uri-sexp" {"D"}
+  "lib/uri-sexp/META" {"F:S215T1574440359.93"}
+  "lib/uri-sexp/dune-package" {"F:S451T1574440359.94"}
+  "lib/uri-sexp/opam" {"F:S757T1574440359.95"}
+  "lib/uri-sexp/uri_sexp.a" {"F:S27394T1574440359.96"}
+  "lib/uri-sexp/uri_sexp.cma" {"F:S35727T1574440359.97"}
+  "lib/uri-sexp/uri_sexp.cmi" {"F:S1422T1574440359.98"}
+  "lib/uri-sexp/uri_sexp.cmt" {"F:S98101T1574440359.99"}
+  "lib/uri-sexp/uri_sexp.cmti" {"F:S8892T1574440360."}
+  "lib/uri-sexp/uri_sexp.cmx" {"F:S1428T1574440360.01"}
+  "lib/uri-sexp/uri_sexp.cmxa" {"F:S1050T1574440360.03"}
+  "lib/uri-sexp/uri_sexp.cmxs" {"F:S35544T1574440360.03"}
+  "lib/uri-sexp/uri_sexp.ml" {"F:S1366T1574440360.05"}
+  "lib/uri-sexp/uri_sexp.mli" {"F:S258T1574440360.06"}
+]

@@ -1,0 +1,74 @@
+.TH "Longident" 3 2019-11-22 OCamldoc "OCaml library"
+.SH NAME
+Longident \- Long identifiers, used in parsetree.
+.SH Module
+Module   Longident
+.SH Documentation
+.sp
+Module
+.BI "Longident"
+ : 
+.B sig  end
+
+.sp
+Long identifiers, used in parsetree\&.
+.sp
+Warning: this module is unstable and part of
+.B Compiler_libs
+\&.
+
+.sp
+
+.sp
+.sp
+.I type t 
+=
+ | Lident
+.B of 
+.B string
+ | Ldot
+.B of 
+.B t * string
+ | Lapply
+.B of 
+.B t * t
+ 
+.sp
+
+.sp
+
+.I val flatten 
+: 
+.B t -> string list
+.sp
+
+.sp
+
+.I val unflatten 
+: 
+.B string list -> t option
+.sp
+
+.sp
+
+.I val last 
+: 
+.B t -> string
+.sp
+
+.sp
+
+.I val parse 
+: 
+.B string -> t
+.sp
+
+.sp
+
+.PP
+To print a longident, see 
+.B Pprintast\&.longident
+, using
+.B Format\&.asprintf
+to convert to a string\&.
+.PP

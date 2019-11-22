@@ -1,0 +1,127 @@
+.TH "Ephemeron" 3 2019-11-22 OCamldoc "OCaml library"
+.SH NAME
+Ephemeron \- Ephemerons and weak hash table
+.SH Module
+Module   Ephemeron
+.SH Documentation
+.sp
+Module
+.BI "Ephemeron"
+ : 
+.B sig  end
+
+.sp
+Ephemerons and weak hash table
+
+.sp
+
+.sp
+.sp
+
+.PP
+Ephemerons and weak hash table are useful when one wants to cache
+or memorize the computation of a function, as long as the
+arguments and the function are used, without creating memory leaks
+by continuously keeping old computation results that are not
+useful anymore because one argument or the function is freed\&. An
+implementation using 
+.B Hashtbl\&.t
+is not suitable because all
+associations would keep in memory the arguments and the result\&.
+.sp
+Ephemerons can also be used for "adding" a field to an arbitrary
+boxed ocaml value: you can attach an information to a value
+created by an external library without memory leaks\&.
+.sp
+Ephemerons hold some keys and one or no data\&. They are all boxed
+ocaml values\&. The keys of an ephemeron have the same behavior
+than weak pointers according to the garbage collector\&. In fact
+ocaml weak pointers are implemented as ephemerons without data\&.
+.sp
+The keys and data of an ephemeron are said to be full if they
+point to a value, empty if the value have never been set, have
+been unset, or was erased by the GC\&. In the function that accesses
+the keys or data these two states are represented by the 
+.B option
+type\&.
+.sp
+The data is considered by the garbage collector alive if all the
+full keys are alive and if the ephemeron is alive\&. When one of the
+keys is not considered alive anymore by the GC, the data is
+emptied from the ephemeron\&. The data could be alive for another
+reason and in that case the GC will not free it, but the ephemeron
+will not hold the data anymore\&.
+.sp
+The ephemerons complicate the notion of liveness of values, because
+it is not anymore an equivalence with the reachability from root
+value by usual pointers (not weak and not ephemerons)\&. With ephemerons
+the notion of liveness is constructed by the least fixpoint of:
+A value is alive if:
+.sp
+\-it is a root value
+.sp
+\-it is reachable from alive value by usual pointers
+.sp
+\-it is the data of an alive ephemeron with all its full keys alive
+
+Notes:
+.sp
+\-All the types defined in this module cannot be marshaled
+using 
+.B output_value
+or the functions of the
+.B Marshal
+module\&.
+
+Ephemerons are defined in a language agnostic way in this paper:
+B\&. Hayes, Ephemerons: a New Finalization Mechanism, OOPSLA\&'9
+.PP
+.I module type S = 
+.B sig  end
+
+.sp
+The output signature of the functor 
+.B Ephemeron\&.K1\&.Make
+and 
+.B Ephemeron\&.K2\&.Make
+\&.
+These hash tables are weak in the keys\&. If all the keys of a binding are
+alive the binding is kept, but if one of the keys of the binding
+is dead then the binding is removed\&.
+
+.sp
+.I module type SeededS = 
+.B sig  end
+
+.sp
+The output signature of the functor 
+.B Ephemeron\&.K1\&.MakeSeeded
+and 
+.B Ephemeron\&.K2\&.MakeSeeded
+\&.
+
+.sp
+.I module K1 : 
+.B sig  end
+
+.sp
+
+.sp
+.I module K2 : 
+.B sig  end
+
+.sp
+
+.sp
+.I module Kn : 
+.B sig  end
+
+.sp
+
+.sp
+.I module GenHashTable : 
+.B sig  end
+
+.sp
+
+.sp

@@ -1,0 +1,55 @@
+.TH "Stdlib.Spacetime" 3 2019-11-22 OCamldoc "OCaml library"
+.SH NAME
+Stdlib.Spacetime \- no description
+.SH Module
+Module   Stdlib.Spacetime
+.SH Documentation
+.sp
+Module
+.BI "Spacetime"
+ : 
+.B (module Stdlib__spacetime)
+
+.sp
+
+.sp
+
+.sp
+.sp
+
+.I val enabled 
+: 
+.B bool
+.sp
+
+.B enabled
+is 
+.B true
+if the compiler is configured with spacetime and 
+.B false
+otherwise
+
+.sp
+.I module Series : 
+.B sig  end
+
+.sp
+
+.sp
+.I module Snapshot : 
+.B sig  end
+
+.sp
+
+.sp
+
+.I val save_event_for_automatic_snapshots 
+: 
+.B event_name:string -> unit
+.sp
+Like 
+.B Spacetime\&.Series\&.save_event
+, but writes to the automatic snapshot file\&.
+This function is a no\-op if OCAML_SPACETIME_INTERVAL was not set\&.
+
+.sp

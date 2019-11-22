@@ -1,0 +1,33 @@
+(lang dune 1.11)
+(name sexplib0)
+(version v0.12.0)
+(library
+ (name sexplib0)
+ (kind normal)
+ (archives (byte sexplib0.cma) (native sexplib0.cmxa))
+ (plugins (byte sexplib0.cma) (native sexplib0.cmxs))
+ (foreign_archives (native sexplib0.a))
+ (main_module_name Sexplib0)
+ (modes byte native)
+ (modules
+  (wrapped
+   (main_module_name Sexplib0)
+   (modules
+    ((name Sexp) (obj_name sexplib0__Sexp) (visibility public) (impl) (intf))
+    ((name Sexp_conv)
+     (obj_name sexplib0__Sexp_conv)
+     (visibility public)
+     (impl)
+     (intf))
+    ((name Sexp_conv_error)
+     (obj_name sexplib0__Sexp_conv_error)
+     (visibility public)
+     (impl))
+    ((name Sexpable) (obj_name sexplib0__Sexpable) (visibility public) (impl)))
+   (alias_module
+    (name Sexplib0)
+    (obj_name sexplib0)
+    (visibility public)
+    (kind alias)
+    (impl))
+   (wrapped true))))

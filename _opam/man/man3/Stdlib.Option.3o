@@ -1,0 +1,352 @@
+.TH "Stdlib.Option" 3 2019-11-22 OCamldoc "OCaml library"
+.SH NAME
+Stdlib.Option \- no description
+.SH Module
+Module   Stdlib.Option
+.SH Documentation
+.sp
+Module
+.BI "Option"
+ : 
+.B (module Stdlib__option)
+
+.sp
+
+.sp
+
+.sp
+.sp
+
+.PP
+.SS Options
+
+.PP
+.I type 
+.B 'a
+.I t 
+= 
+.B 'a option
+=
+ | None
+ | Some
+.B of 
+.B 'a
+ 
+.sp
+The type for option values\&. Either 
+.B None
+or a value 
+.B Some v
+\&.
+
+.sp
+
+.I val none 
+: 
+.B 'a option
+.sp
+
+.B none
+is 
+.B None
+\&.
+
+.sp
+
+.I val some 
+: 
+.B 'a -> 'a option
+.sp
+
+.B some v
+is 
+.B Some v
+\&.
+
+.sp
+
+.I val value 
+: 
+.B 'a option -> default:'a -> 'a
+.sp
+
+.B value o ~default
+is 
+.B v
+if 
+.B o
+is 
+.B Some v
+and 
+.B default
+otherwise\&.
+
+.sp
+
+.I val get 
+: 
+.B 'a option -> 'a
+.sp
+
+.B get o
+is 
+.B v
+if 
+.B o
+is 
+.B Some v
+and
+
+.sp
+.B "Raises Invalid_argument"
+otherwise\&.
+
+.sp
+
+.I val bind 
+: 
+.B 'a option -> ('a -> 'b option) -> 'b option
+.sp
+
+.B bind o f
+is 
+.B f v
+if 
+.B o
+is 
+.B Some v
+and 
+.B None
+if 
+.B o
+is 
+.B None
+\&.
+
+.sp
+
+.I val join 
+: 
+.B 'a option option -> 'a option
+.sp
+
+.B join oo
+is 
+.B Some v
+if 
+.B oo
+is 
+.B Some (Some v)
+and 
+.B None
+otherwise\&.
+
+.sp
+
+.I val map 
+: 
+.B ('a -> 'b) -> 'a option -> 'b option
+.sp
+
+.B map f o
+is 
+.B None
+if 
+.B o
+is 
+.B None
+and 
+.B Some (f v)
+is 
+.B o
+is 
+.B Some v
+\&.
+
+.sp
+
+.I val fold 
+: 
+.B none:'a -> some:('b -> 'a) -> 'b option -> 'a
+.sp
+
+.B fold ~none ~some o
+is 
+.B none
+if 
+.B o
+is 
+.B None
+and 
+.B some v
+if 
+.B o
+is
+.B Some v
+\&.
+
+.sp
+
+.I val iter 
+: 
+.B ('a -> unit) -> 'a option -> unit
+.sp
+
+.B iter f o
+is 
+.B f v
+if 
+.B o
+is 
+.B Some v
+and 
+.B ()
+otherwise\&.
+
+.sp
+
+.PP
+.SS Predicates and comparisons
+
+.PP
+
+.I val is_none 
+: 
+.B 'a option -> bool
+.sp
+
+.B is_none o
+is 
+.B true
+iff 
+.B o
+is 
+.B None
+\&.
+
+.sp
+
+.I val is_some 
+: 
+.B 'a option -> bool
+.sp
+
+.B is_some o
+is 
+.B true
+iff 
+.B o
+is 
+.B Some o
+\&.
+
+.sp
+
+.I val equal 
+: 
+.B ('a -> 'a -> bool) -> 'a option -> 'a option -> bool
+.sp
+
+.B equal eq o0 o1
+is 
+.B true
+iff 
+.B o0
+and 
+.B o1
+are both 
+.B None
+or if
+they are 
+.B Some v0
+and 
+.B Some v1
+and 
+.B eq v0 v1
+is 
+.B true
+\&.
+
+.sp
+
+.I val compare 
+: 
+.B ('a -> 'a -> int) -> 'a option -> 'a option -> int
+.sp
+
+.B compare cmp o0 o1
+is a total order on options using 
+.B cmp
+to compare
+values wrapped by 
+.B Some _
+\&. 
+.B None
+is smaller than 
+.B Some _
+values\&.
+
+.sp
+
+.PP
+.SS Converting
+
+.PP
+
+.I val to_result 
+: 
+.B none:'e -> 'a option -> ('a, 'e) result
+.sp
+
+.B to_result ~none o
+is 
+.B Ok v
+if 
+.B o
+is 
+.B Some v
+and 
+.B Error none
+otherwise\&.
+
+.sp
+
+.I val to_list 
+: 
+.B 'a option -> 'a list
+.sp
+
+.B to_list o
+is 
+.B []
+if 
+.B o
+is 
+.B None
+and 
+.B [v]
+if 
+.B o
+is 
+.B Some v
+\&.
+
+.sp
+
+.I val to_seq 
+: 
+.B 'a option -> 'a Seq.t
+.sp
+
+.B to_seq o
+is 
+.B o
+as a sequence\&. 
+.B None
+is the empty sequence and
+.B Some v
+is the singleton sequence containing 
+.B v
+\&.
+
+.sp

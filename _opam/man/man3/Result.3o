@@ -1,0 +1,432 @@
+.TH "Result" 3 2019-11-22 OCamldoc "OCaml library"
+.SH NAME
+Result \- Result values.
+.SH Module
+Module   Result
+.SH Documentation
+.sp
+Module
+.BI "Result"
+ : 
+.B sig  end
+
+.sp
+Result values\&.
+.sp
+Result values handle computation results and errors in an explicit
+and declarative manner without resorting to exceptions\&.
+
+.sp
+.B "Since"
+4.08
+
+.sp
+
+.sp
+.sp
+
+.PP
+.SS Results
+
+.PP
+.I type 
+.B ('a, 'e)
+.I t 
+= 
+.B ('a, 'e) result
+=
+ | Ok
+.B of 
+.B 'a
+ | Error
+.B of 
+.B 'e
+ 
+.sp
+The type for result values\&. Either a value 
+.B Ok v
+or an error 
+.B Error e
+\&.
+
+.sp
+
+.I val ok 
+: 
+.B 'a -> ('a, 'e) result
+.sp
+
+.B ok v
+is 
+.B Ok v
+\&.
+
+.sp
+
+.I val error 
+: 
+.B 'e -> ('a, 'e) result
+.sp
+
+.B error e
+is 
+.B Error e
+\&.
+
+.sp
+
+.I val value 
+: 
+.B ('a, 'e) result -> default:'a -> 'a
+.sp
+
+.B value r ~default
+is 
+.B v
+if 
+.B r
+is 
+.B Ok v
+and 
+.B default
+otherwise\&.
+
+.sp
+
+.I val get_ok 
+: 
+.B ('a, 'e) result -> 'a
+.sp
+
+.B get_ok r
+is 
+.B v
+if 
+.B r
+is 
+.B Ok v
+and
+
+.sp
+.B "Raises Invalid_argument"
+otherwise\&.
+
+.sp
+
+.I val get_error 
+: 
+.B ('a, 'e) result -> 'e
+.sp
+
+.B get_error r
+is 
+.B e
+if 
+.B r
+is 
+.B Error e
+and
+
+.sp
+.B "Raises Invalid_argument"
+otherwise\&.
+
+.sp
+
+.I val bind 
+: 
+.B ('a, 'e) result ->
+.B   ('a -> ('b, 'e) result) -> ('b, 'e) result
+.sp
+
+.B bind r f
+is 
+.B f v
+if 
+.B r
+is 
+.B Ok v
+and 
+.B r
+if 
+.B r
+is 
+.B Error _
+\&.
+
+.sp
+
+.I val join 
+: 
+.B (('a, 'e) result, 'e) result -> ('a, 'e) result
+.sp
+
+.B join rr
+is 
+.B r
+if 
+.B rr
+is 
+.B Ok r
+and 
+.B rr
+if 
+.B rr
+is 
+.B Error _
+\&.
+
+.sp
+
+.I val map 
+: 
+.B ('a -> 'b) -> ('a, 'e) result -> ('b, 'e) result
+.sp
+
+.B map f r
+is 
+.B Ok (f v)
+if 
+.B r
+is 
+.B Ok v
+and 
+.B r
+if 
+.B r
+is 
+.B Error _
+\&.
+
+.sp
+
+.I val map_error 
+: 
+.B ('e -> 'f) -> ('a, 'e) result -> ('a, 'f) result
+.sp
+
+.B map_error f r
+is 
+.B Error (f e)
+if 
+.B r
+is 
+.B Error e
+and 
+.B r
+if
+.B r
+is 
+.B Ok _
+\&.
+
+.sp
+
+.I val fold 
+: 
+.B ok:('a -> 'c) -> error:('e -> 'c) -> ('a, 'e) result -> 'c
+.sp
+
+.B fold ~ok ~error r
+is 
+.B ok v
+if 
+.B r
+is 
+.B Ok v
+and 
+.B error e
+if 
+.B r
+is 
+.B Error e
+\&.
+
+.sp
+
+.I val iter 
+: 
+.B ('a -> unit) -> ('a, 'e) result -> unit
+.sp
+
+.B iter f r
+is 
+.B f v
+if 
+.B r
+is 
+.B Ok v
+and 
+.B ()
+otherwise\&.
+
+.sp
+
+.I val iter_error 
+: 
+.B ('e -> unit) -> ('a, 'e) result -> unit
+.sp
+
+.B iter_error f r
+is 
+.B f e
+if 
+.B r
+is 
+.B Error e
+and 
+.B ()
+otherwise\&.
+
+.sp
+
+.PP
+.SS Predicates and comparisons
+
+.PP
+
+.I val is_ok 
+: 
+.B ('a, 'e) result -> bool
+.sp
+
+.B is_ok r
+is 
+.B true
+iff 
+.B r
+is 
+.B Ok _
+\&.
+
+.sp
+
+.I val is_error 
+: 
+.B ('a, 'e) result -> bool
+.sp
+
+.B is_error r
+is 
+.B true
+iff 
+.B r
+is 
+.B Error _
+\&.
+
+.sp
+
+.I val equal 
+: 
+.B ok:('a -> 'a -> bool) ->
+.B   error:('e -> 'e -> bool) ->
+.B   ('a, 'e) result -> ('a, 'e) result -> bool
+.sp
+
+.B equal ~ok ~error r0 r1
+tests equality of 
+.B r0
+and 
+.B r1
+using 
+.B ok
+and 
+.B error
+to respectively compare values wrapped by 
+.B Ok _
+and
+.B Error _
+\&.
+
+.sp
+
+.I val compare 
+: 
+.B ok:('a -> 'a -> int) ->
+.B   error:('e -> 'e -> int) ->
+.B   ('a, 'e) result -> ('a, 'e) result -> int
+.sp
+
+.B compare ~ok ~error r0 r1
+totally orders 
+.B r0
+and 
+.B r1
+using 
+.B ok
+and
+.B error
+to respectively compare values wrapped by 
+.B Ok _ 
+and 
+.B Error _
+\&.
+.B Ok _
+values are smaller than 
+.B Error _
+values\&.
+
+.sp
+
+.PP
+.SS Converting
+
+.PP
+
+.I val to_option 
+: 
+.B ('a, 'e) result -> 'a option
+.sp
+
+.B to_option r
+is 
+.B r
+as an option, mapping 
+.B Ok v
+to 
+.B Some v
+and
+.B Error _
+to 
+.B None
+\&.
+
+.sp
+
+.I val to_list 
+: 
+.B ('a, 'e) result -> 'a list
+.sp
+
+.B to_list r
+is 
+.B [v]
+if 
+.B r
+is 
+.B Ok v
+and 
+.B []
+otherwise\&.
+
+.sp
+
+.I val to_seq 
+: 
+.B ('a, 'e) result -> 'a Seq.t
+.sp
+
+.B to_seq r
+is 
+.B r
+as a sequence\&. 
+.B Ok v
+is the singleton sequence
+containing 
+.B v
+and 
+.B Error _
+is the empty sequence\&.
+
+.sp

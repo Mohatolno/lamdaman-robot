@@ -1,0 +1,19 @@
+(lang dune 1.11)
+(name ipaddr-sexp)
+(version 4.0.0)
+(library
+ (name ipaddr-sexp)
+ (kind normal)
+ (archives (byte ipaddr_sexp.cma) (native ipaddr_sexp.cmxa))
+ (plugins (byte ipaddr_sexp.cma) (native ipaddr_sexp.cmxs))
+ (foreign_archives (native ipaddr_sexp.a))
+ (requires ppx_sexp_conv.runtime-lib ipaddr sexplib0)
+ (main_module_name Ipaddr_sexp)
+ (modes byte native)
+ (modules
+  (singleton
+   (name Ipaddr_sexp)
+   (obj_name ipaddr_sexp)
+   (visibility public)
+   (impl)
+   (intf))))

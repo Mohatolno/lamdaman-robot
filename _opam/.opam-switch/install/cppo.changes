@@ -1,0 +1,10 @@
+added: [
+  "bin/cppo" {"F:S2560016T1574440230.63"}
+  "doc/cppo" {"D"}
+  "doc/cppo/LICENSE.md" {"F:S1397T1574440230.76"}
+  "doc/cppo/README.md" {"F:S12836T1574440230.79"}
+  "lib/cppo" {"D"}
+  "lib/cppo/META" {"F:S1T1574440230.66"}
+  "lib/cppo/dune-package" {"F:S45T1574440230.69"}
+  "lib/cppo/opam" {"F:S872T1574440230.72"}
+]

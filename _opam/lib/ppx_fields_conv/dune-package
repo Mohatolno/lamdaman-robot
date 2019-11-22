@@ -1,0 +1,20 @@
+(lang dune 1.11)
+(name ppx_fields_conv)
+(version v0.12.0)
+(library
+ (name ppx_fields_conv)
+ (kind ppx_deriver)
+ (archives (byte ppx_fields_conv.cma) (native ppx_fields_conv.cmxa))
+ (plugins (byte ppx_fields_conv.cma) (native ppx_fields_conv.cmxs))
+ (foreign_archives (native ppx_fields_conv.a))
+ (requires base ppxlib)
+ (ppx_runtime_deps fieldslib)
+ (main_module_name Ppx_fields_conv)
+ (modes byte native)
+ (modules
+  (singleton
+   (name Ppx_fields_conv)
+   (obj_name ppx_fields_conv)
+   (visibility public)
+   (impl)
+   (intf))))

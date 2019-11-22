@@ -1,0 +1,180 @@
+.TH "Fun" 3 2019-11-22 OCamldoc "OCaml library"
+.SH NAME
+Fun \- Function manipulation.
+.SH Module
+Module   Fun
+.SH Documentation
+.sp
+Module
+.BI "Fun"
+ : 
+.B sig  end
+
+.sp
+Function manipulation\&.
+
+.sp
+.B "Since"
+4.08
+
+.sp
+
+.sp
+.sp
+
+.PP
+.SS Combinators
+
+.PP
+
+.I val id 
+: 
+.B 'a -> 'a
+.sp
+
+.B id
+is the identity function\&. For any argument 
+.B x
+, 
+.B id x
+is 
+.B x
+\&.
+
+.sp
+
+.I val const 
+: 
+.B 'a -> 'b -> 'a
+.sp
+
+.B const c
+is a function that always returns the value 
+.B c
+\&. For any
+argument 
+.B x
+, 
+.B (const c) x
+is 
+.B c
+\&.
+
+.sp
+
+.I val flip 
+: 
+.B ('a -> 'b -> 'c) -> 'b -> 'a -> 'c
+.sp
+
+.B flip f
+reverses the argument order of the binary function
+.B f
+\&. For any arguments 
+.B x
+and 
+.B y
+, 
+.B (flip f) x y
+is 
+.B f y x
+\&.
+
+.sp
+
+.I val negate 
+: 
+.B ('a -> bool) -> 'a -> bool
+.sp
+
+.B negate p
+is the negation of the predicate function 
+.B p
+\&. For any
+argument 
+.B x
+, 
+.B (negate p) x
+is 
+.B not (p x)
+\&.
+
+.sp
+
+.PP
+.SS Exception handling
+
+.PP
+
+.I val protect 
+: 
+.B finally:(unit -> unit) -> (unit -> 'a) -> 'a
+.sp
+
+.B protect ~finally work
+invokes 
+.B work ()
+and then 
+.B finally ()
+before 
+.B work ()
+returns with its value or an exception\&. In the
+latter case the exception is re\-raised after 
+.B finally ()
+\&. If
+.B finally ()
+raises an exception, then the exception
+.B Fun\&.Finally_raised
+is raised instead\&.
+.sp
+
+.B protect
+can be used to enforce local invariants whether 
+.B work ()
+returns normally or raises an exception\&. However, it does not
+protect against unexpected exceptions raised inside 
+.B finally ()
+such as 
+.B Out_of_memory
+, 
+.B Stack_overflow
+, or
+asynchronous exceptions raised by signal handlers
+(e\&.g\&. 
+.B Sys\&.Break
+)\&.
+.sp
+Note: It is a programming error if other kinds of exceptions
+are raised by 
+.B finally
+, as any exception raised in 
+.B work ()
+will
+be lost in the event of a 
+.B Fun\&.Finally_raised
+exception\&. Therefore,
+one should make sure to handle those inside the finally\&.
+
+.sp
+
+.I exception Finally_raised 
+.B of 
+.B exn
+
+.sp
+
+.B Finally_raised exn
+is raised by 
+.B protect ~finally work
+when
+.B finally
+raises an exception 
+.B exn
+\&. This exception denotes either
+an unexpected exception or a programming error\&. As a general rule,
+one should not catch a 
+.B Finally_raised
+exception except as part of
+a catch\-all handler\&.
+
+.sp

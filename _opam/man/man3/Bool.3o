@@ -1,0 +1,213 @@
+.TH "Bool" 3 2019-11-22 OCamldoc "OCaml library"
+.SH NAME
+Bool \- Boolean values.
+.SH Module
+Module   Bool
+.SH Documentation
+.sp
+Module
+.BI "Bool"
+ : 
+.B sig  end
+
+.sp
+Boolean values\&.
+
+.sp
+.B "Since"
+4.08
+
+.sp
+
+.sp
+.sp
+
+.PP
+.SS Booleans
+
+.PP
+.I type t 
+= 
+.B bool
+=
+ | false
+ | true
+ 
+.sp
+The type of booleans (truth values)\&.
+.sp
+The constructors 
+.B false
+and 
+.B true
+are included here so that they have
+paths, but they are not intended to be used in user\-defined data types\&.
+
+.sp
+
+.I val not 
+: 
+.B bool -> bool
+.sp
+
+.B not b
+is the boolean negation of 
+.B b
+\&.
+
+.sp
+
+.I val (&&) 
+: 
+.B bool -> bool -> bool
+.sp
+
+.B e0 && e1
+is the lazy boolean conjunction of expressions 
+.B e0
+and 
+.B e1
+\&.
+If 
+.B e0
+evaluates to 
+.B false
+, 
+.B e1
+is not evaluated\&. Right\-associative
+operator at precedence level 3/11\&.
+
+.sp
+
+.I val (||) 
+: 
+.B bool -> bool -> bool
+.sp
+
+.B e0 || e1
+is the lazy boolean disjunction of expressions 
+.B e0
+and 
+.B e1
+\&.
+If 
+.B e0
+evaluates to 
+.B true
+, 
+.B e1
+is not evaluated\&. Right\-associative
+operator at precedence level 2/11\&.
+
+.sp
+
+.PP
+.SS Predicates and comparisons
+
+.PP
+
+.I val equal 
+: 
+.B bool -> bool -> bool
+.sp
+
+.B equal b0 b1
+is 
+.B true
+iff 
+.B b0
+and 
+.B b1
+are both either 
+.B true
+or 
+.B false
+\&.
+
+.sp
+
+.I val compare 
+: 
+.B bool -> bool -> int
+.sp
+
+.B compare b0 b1
+is a total order on boolean values\&. 
+.B false
+is smaller
+than 
+.B true
+\&.
+
+.sp
+
+.PP
+.SS Converting
+
+.PP
+
+.I val to_int 
+: 
+.B bool -> int
+.sp
+
+.B to_int b
+is 
+.B 0
+if 
+.B b
+is 
+.B false
+and 
+.B 1
+if 
+.B b
+is 
+.B true
+\&.
+
+.sp
+
+.I val to_float 
+: 
+.B bool -> float
+.sp
+
+.B to_float b
+is 
+.B 0\&.
+if 
+.B b
+is 
+.B false
+and 
+.B 1\&.
+if 
+.B b
+is 
+.B true
+\&.
+
+.sp
+
+.I val to_string 
+: 
+.B bool -> string
+.sp
+
+.B to_string b
+is 
+.B "true"
+if 
+.B b
+is 
+.B true
+and 
+.B "false"
+if 
+.B b
+is
+.B false
+\&.
+
+.sp

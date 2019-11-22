@@ -1,0 +1,1 @@
+[@@@deprecated "Access modules via the Migrate_parsetree toplevel module. Use Migrate_parsetree.Stdlib0 instead."] include Migrate_parsetree__Stdlib0

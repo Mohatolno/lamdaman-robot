@@ -1,0 +1,758 @@
+.TH "Float.Array" 3 2019-11-22 OCamldoc "OCaml library"
+.SH NAME
+Float.Array \- no description
+.SH Module
+Module   Float.Array
+.SH Documentation
+.sp
+Module
+.BI "Array"
+ : 
+.B sig  end
+
+.sp
+
+.sp
+
+.sp
+.sp
+.I type t 
+= 
+.B floatarray
+
+.sp
+The type of float arrays with packed representation\&.
+
+.sp
+.B "Since"
+4.08.0
+
+.sp
+
+.I val length 
+: 
+.B t -> int
+.sp
+Return the length (number of elements) of the given floatarray\&.
+
+.sp
+
+.I val get 
+: 
+.B t -> int -> float
+.sp
+
+.B get a n
+returns the element number 
+.B n
+of floatarray 
+.B a
+\&.
+.sp
+Raise 
+.B Invalid_argument
+if 
+.B n
+is outside the range 0 to
+.B (length a \- 1)
+\&.
+
+.sp
+
+.I val set 
+: 
+.B t -> int -> float -> unit
+.sp
+
+.B set a n x
+modifies floatarray 
+.B a
+in place, replacing element
+number 
+.B n
+with 
+.B x
+\&.
+.sp
+Raise 
+.B Invalid_argument
+if 
+.B n
+is outside the range 0 to
+.B (length a \- 1)
+\&.
+
+.sp
+
+.I val make 
+: 
+.B int -> float -> t
+.sp
+
+.B make n x
+returns a fresh floatarray of length 
+.B n
+, initialized with 
+.B x
+\&.
+.sp
+Raise 
+.B Invalid_argument
+if 
+.B n < 0
+or 
+.B n > Sys\&.max_floatarray_length
+\&.
+
+.sp
+
+.I val create 
+: 
+.B int -> t
+.sp
+
+.B create n
+returns a fresh floatarray of length 
+.B n
+,
+with uninitialized data\&.
+.sp
+Raise 
+.B Invalid_argument
+if 
+.B n < 0
+or 
+.B n > Sys\&.max_floatarray_length
+\&.
+
+.sp
+
+.I val init 
+: 
+.B int -> (int -> float) -> t
+.sp
+
+.B init n f
+returns a fresh floatarray of length 
+.B n
+,
+with element number 
+.B i
+initialized to the result of 
+.B f i
+\&.
+In other terms, 
+.B init n f
+tabulates the results of 
+.B f
+applied to the integers 
+.B 0
+to 
+.B n\-1
+\&.
+.sp
+Raise 
+.B Invalid_argument
+if 
+.B n < 0
+or 
+.B n > Sys\&.max_floatarray_length
+\&.
+
+.sp
+
+.I val append 
+: 
+.B t -> t -> t
+.sp
+
+.B append v1 v2
+returns a fresh floatarray containing the
+concatenation of the floatarrays 
+.B v1
+and 
+.B v2
+\&.
+.sp
+Raise 
+.B Invalid_argument
+if
+.B length v1 + length v2 > Sys\&.max_floatarray_length
+\&.
+
+.sp
+
+.I val concat 
+: 
+.B t list -> t
+.sp
+Same as 
+.B Float\&.Array\&.append
+, but concatenates a list of floatarrays\&.
+
+.sp
+
+.I val sub 
+: 
+.B t -> int -> int -> t
+.sp
+
+.B sub a start len
+returns a fresh floatarray of length 
+.B len
+,
+containing the elements number 
+.B start
+to 
+.B start + len \- 1
+of floatarray 
+.B a
+\&.
+.sp
+Raise 
+.B Invalid_argument
+if 
+.B start
+and 
+.B len
+do not
+designate a valid subarray of 
+.B a
+; that is, if
+.B start < 0
+, or 
+.B len < 0
+, or 
+.B start + len > length a
+\&.
+
+.sp
+
+.I val copy 
+: 
+.B t -> t
+.sp
+
+.B copy a
+returns a copy of 
+.B a
+, that is, a fresh floatarray
+containing the same elements as 
+.B a
+\&.
+
+.sp
+
+.I val fill 
+: 
+.B t -> int -> int -> float -> unit
+.sp
+
+.B fill a ofs len x
+modifies the floatarray 
+.B a
+in place,
+storing 
+.B x
+in elements number 
+.B ofs
+to 
+.B ofs + len \- 1
+\&.
+.sp
+Raise 
+.B Invalid_argument
+if 
+.B ofs
+and 
+.B len
+do not
+designate a valid subarray of 
+.B a
+\&.
+
+.sp
+
+.I val blit 
+: 
+.B t -> int -> t -> int -> int -> unit
+.sp
+
+.B blit v1 o1 v2 o2 len
+copies 
+.B len
+elements
+from floatarray 
+.B v1
+, starting at element number 
+.B o1
+, to floatarray 
+.B v2
+,
+starting at element number 
+.B o2
+\&. It works correctly even if
+.B v1
+and 
+.B v2
+are the same floatarray, and the source and
+destination chunks overlap\&.
+.sp
+Raise 
+.B Invalid_argument
+if 
+.B o1
+and 
+.B len
+do not
+designate a valid subarray of 
+.B v1
+, or if 
+.B o2
+and 
+.B len
+do not
+designate a valid subarray of 
+.B v2
+\&.
+
+.sp
+
+.I val to_list 
+: 
+.B t -> float list
+.sp
+
+.B to_list a
+returns the list of all the elements of 
+.B a
+\&.
+
+.sp
+
+.I val of_list 
+: 
+.B float list -> t
+.sp
+
+.B of_list l
+returns a fresh floatarray containing the elements
+of 
+.B l
+\&.
+.sp
+Raise 
+.B Invalid_argument
+if the length of 
+.B l
+is greater than
+.B Sys\&.max_floatarray_length
+\&.
+
+.sp
+
+.PP
+.SS Iterators
+
+.PP
+
+.I val iter 
+: 
+.B (float -> unit) -> t -> unit
+.sp
+
+.B iter f a
+applies function 
+.B f
+in turn to all
+the elements of 
+.B a
+\&.  It is equivalent to
+.B f a\&.(0); f a\&.(1); \&.\&.\&.; f a\&.(length a \- 1); ()
+\&.
+
+.sp
+
+.I val iteri 
+: 
+.B (int -> float -> unit) -> t -> unit
+.sp
+Same as 
+.B Float\&.Array\&.iter
+, but the
+function is applied with the index of the element as first argument,
+and the element itself as second argument\&.
+
+.sp
+
+.I val map 
+: 
+.B (float -> float) -> t -> t
+.sp
+
+.B map f a
+applies function 
+.B f
+to all the elements of 
+.B a
+,
+and builds a floatarray with the results returned by 
+.B f
+\&.
+
+.sp
+
+.I val mapi 
+: 
+.B (int -> float -> float) -> t -> t
+.sp
+Same as 
+.B Float\&.Array\&.map
+, but the
+function is applied to the index of the element as first argument,
+and the element itself as second argument\&.
+
+.sp
+
+.I val fold_left 
+: 
+.B ('a -> float -> 'a) -> 'a -> t -> 'a
+.sp
+
+.B fold_left f x a
+computes
+.B f (\&.\&.\&. (f (f x a\&.(0)) a\&.(1)) \&.\&.\&.) a\&.(n\-1)
+,
+where 
+.B n
+is the length of the floatarray 
+.B a
+\&.
+
+.sp
+
+.I val fold_right 
+: 
+.B (float -> 'a -> 'a) -> t -> 'a -> 'a
+.sp
+
+.B fold_right f a x
+computes
+.B f a\&.(0) (f a\&.(1) ( \&.\&.\&. (f a\&.(n\-1) x) \&.\&.\&.))
+,
+where 
+.B n
+is the length of the floatarray 
+.B a
+\&.
+
+.sp
+
+.PP
+.SS Iterators on two arrays
+
+.PP
+
+.I val iter2 
+: 
+.B (float -> float -> unit) -> t -> t -> unit
+.sp
+
+.B Array\&.iter2 f a b
+applies function 
+.B f
+to all the elements of 
+.B a
+and 
+.B b
+\&.
+Raise 
+.B Invalid_argument
+if the floatarrays are not the same size\&.
+
+.sp
+
+.I val map2 
+: 
+.B (float -> float -> float) -> t -> t -> t
+.sp
+
+.B map2 f a b
+applies function 
+.B f
+to all the elements of 
+.B a
+and 
+.B b
+, and builds a floatarray with the results returned by 
+.B f
+:
+.B [| f a\&.(0) b\&.(0); \&.\&.\&.; f a\&.(length a \- 1) b\&.(length b \- 1)|]
+\&.
+Raise 
+.B Invalid_argument
+if the floatarrays are not the same size\&.
+
+.sp
+
+.PP
+.SS Array scanning
+
+.PP
+
+.I val for_all 
+: 
+.B (float -> bool) -> t -> bool
+.sp
+
+.B for_all p [|a1; \&.\&.\&.; an|]
+checks if all elements of the floatarray
+satisfy the predicate 
+.B p
+\&. That is, it returns
+.B (p a1) && (p a2) && \&.\&.\&. && (p an)
+\&.
+
+.sp
+
+.I val exists 
+: 
+.B (float -> bool) -> t -> bool
+.sp
+
+.B exists p [|a1; \&.\&.\&.; an|]
+checks if at least one element of
+the floatarray satisfies the predicate 
+.B p
+\&. That is, it returns
+.B (p a1) || (p a2) || \&.\&.\&. || (p an)
+\&.
+
+.sp
+
+.I val mem 
+: 
+.B float -> t -> bool
+.sp
+
+.B mem a l
+is true if and only if there is an element of 
+.B l
+that is
+structurally equal to 
+.B a
+, i\&.e\&. there is an 
+.B x
+in 
+.B l
+such
+that 
+.B compare a x = 0
+\&.
+
+.sp
+
+.I val mem_ieee 
+: 
+.B float -> t -> bool
+.sp
+Same as 
+.B Float\&.Array\&.mem
+, but uses IEEE equality instead of structural equality\&.
+
+.sp
+
+.PP
+.SS Sorting
+
+.PP
+
+.I val sort 
+: 
+.B (float -> float -> int) -> t -> unit
+.sp
+Sort a floatarray in increasing order according to a comparison
+function\&.  The comparison function must return 0 if its arguments
+compare as equal, a positive integer if the first is greater,
+and a negative integer if the first is smaller (see below for a
+complete specification)\&.  For example, 
+.B compare
+is
+a suitable comparison function\&.  After calling 
+.B sort
+, the
+array is sorted in place in increasing order\&.
+.B sort
+is guaranteed to run in constant heap space
+and (at most) logarithmic stack space\&.
+.sp
+The current implementation uses Heap Sort\&.  It runs in constant
+stack space\&.
+.sp
+Specification of the comparison function:
+Let 
+.B a
+be the floatarray and 
+.B cmp
+the comparison function\&. The following
+must be true for all 
+.B x
+, 
+.B y
+, 
+.B z
+in 
+.B a
+:
+.sp
+\-     
+.B cmp x y
+> 0 if and only if 
+.B cmp y x
+< 0
+.sp
+\-     if 
+.B cmp x y
+>= 0 and 
+.B cmp y z
+>= 0 then 
+.B cmp x z
+>= 0
+
+When 
+.B sort
+returns, 
+.B a
+contains the same elements as before,
+reordered in such a way that for all i and j valid indices of 
+.B a
+:
+.sp
+\-     
+.B cmp a\&.(i) a\&.(j)
+>= 0 if and only if i >= j
+
+
+.sp
+
+.I val stable_sort 
+: 
+.B (float -> float -> int) -> t -> unit
+.sp
+Same as 
+.B Float\&.Array\&.sort
+, but the sorting algorithm is stable (i\&.e\&.
+elements that compare equal are kept in their original order) and
+not guaranteed to run in constant heap space\&.
+.sp
+The current implementation uses Merge Sort\&. It uses a temporary
+floatarray of length 
+.B n/2
+, where 
+.B n
+is the length of the floatarray\&.
+It is usually faster than the current implementation of 
+.B Float\&.Array\&.sort
+\&.
+
+.sp
+
+.I val fast_sort 
+: 
+.B (float -> float -> int) -> t -> unit
+.sp
+Same as 
+.B Float\&.Array\&.sort
+or 
+.B Float\&.Array\&.stable_sort
+, whichever is faster
+on typical input\&.
+
+.sp
+
+.PP
+.SS Iterators
+
+.PP
+
+.I val to_seq 
+: 
+.B t -> float Seq.t
+.sp
+Iterate on the floatarray, in increasing order\&. Modifications of the
+floatarray during iteration will be reflected in the iterator\&.
+
+.sp
+
+.I val to_seqi 
+: 
+.B t -> (int * float) Seq.t
+.sp
+Iterate on the floatarray, in increasing order, yielding indices along
+elements\&. Modifications of the floatarray during iteration will be
+reflected in the iterator\&.
+
+.sp
+
+.I val of_seq 
+: 
+.B float Seq.t -> t
+.sp
+Create an array from the generator\&.
+
+.sp
+
+.I val map_to_array 
+: 
+.B (float -> 'a) -> t -> 'a array
+.sp
+
+.B map_to_array f a
+applies function 
+.B f
+to all the elements of 
+.B a
+,
+and builds an array with the results returned by 
+.B f
+:
+.B [| f a\&.(0); f a\&.(1); \&.\&.\&.; f a\&.(length a \- 1) |]
+\&.
+
+.sp
+
+.I val map_from_array 
+: 
+.B ('a -> float) -> 'a array -> t
+.sp
+
+.B map_from_array f a
+applies function 
+.B f
+to all the elements of 
+.B a
+,
+and builds a floatarray with the results returned by 
+.B f
+\&.
+
+.sp
+
+.PP
+.SS Undocumented functions
+
+.PP
+
+.I val unsafe_get 
+: 
+.B t -> int -> float
+.sp
+
+.sp
+
+.I val unsafe_set 
+: 
+.B t -> int -> float -> unit
+.sp
+
+.sp

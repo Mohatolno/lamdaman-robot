@@ -1,0 +1,412 @@
+.TH "Stdlib.Int" 3 2019-11-22 OCamldoc "OCaml library"
+.SH NAME
+Stdlib.Int \- no description
+.SH Module
+Module   Stdlib.Int
+.SH Documentation
+.sp
+Module
+.BI "Int"
+ : 
+.B (module Stdlib__int)
+
+.sp
+
+.sp
+
+.sp
+.sp
+
+.PP
+.SS Integers
+
+.PP
+.I type t 
+= 
+.B int
+
+.sp
+The type for integer values\&.
+
+.sp
+
+.I val zero 
+: 
+.B int
+.sp
+
+.B zero
+is the integer 
+.B 0
+\&.
+
+.sp
+
+.I val one 
+: 
+.B int
+.sp
+
+.B one
+is the integer 
+.B 1
+\&.
+
+.sp
+
+.I val minus_one 
+: 
+.B int
+.sp
+
+.B minus_one
+is the integer 
+.B \-1
+\&.
+
+.sp
+
+.I val neg 
+: 
+.B int -> int
+.sp
+
+.B neg x
+is 
+.B ~\-x
+\&.
+
+.sp
+
+.I val add 
+: 
+.B int -> int -> int
+.sp
+
+.B add x y
+is the addition 
+.B x + y
+\&.
+
+.sp
+
+.I val sub 
+: 
+.B int -> int -> int
+.sp
+
+.B sub x y
+is the subtraction 
+.B x \- y
+\&.
+
+.sp
+
+.I val mul 
+: 
+.B int -> int -> int
+.sp
+
+.B mul x y
+is the multiplication 
+.B x * y
+\&.
+
+.sp
+
+.I val div 
+: 
+.B int -> int -> int
+.sp
+
+.B div x y
+is the division 
+.B x / y
+\&. See 
+.B (/)
+for details\&.
+
+.sp
+
+.I val rem 
+: 
+.B int -> int -> int
+.sp
+
+.B rem x y
+is the remainder 
+.B x mod y
+\&. See 
+.B (mod)
+for details\&.
+
+.sp
+
+.I val succ 
+: 
+.B int -> int
+.sp
+
+.B succ x
+is 
+.B add x 1
+\&.
+
+.sp
+
+.I val pred 
+: 
+.B int -> int
+.sp
+
+.B pred x
+is 
+.B sub x 1
+\&.
+
+.sp
+
+.I val abs 
+: 
+.B int -> int
+.sp
+
+.B abs x
+is the absolute value of 
+.B x
+\&. That is 
+.B x
+if 
+.B x
+is positive
+and 
+.B neg x
+if 
+.B x
+is negative\&. Warning\&. This may be negative if
+the argument is 
+.B Int\&.min_int
+\&.
+
+.sp
+
+.I val max_int 
+: 
+.B int
+.sp
+
+.B max_int
+is the greatest representable integer,
+.B 2{^[Sys\&.int_size \- 1]} \- 1
+\&.
+
+.sp
+
+.I val min_int 
+: 
+.B int
+.sp
+
+.B min_int
+is the smallest representable integer,
+.B \-2{^[Sys\&.int_size \- 1]}
+\&.
+
+.sp
+
+.I val logand 
+: 
+.B int -> int -> int
+.sp
+
+.B logand x y
+is the bitwise logical and of 
+.B x
+and 
+.B y
+\&.
+
+.sp
+
+.I val logor 
+: 
+.B int -> int -> int
+.sp
+
+.B logor x y
+is the bitwise logical or of 
+.B x
+and 
+.B y
+\&.
+
+.sp
+
+.I val logxor 
+: 
+.B int -> int -> int
+.sp
+
+.B logxor x y
+is the bitwise logical exclusive or of 
+.B x
+and 
+.B y
+\&.
+
+.sp
+
+.I val lognot 
+: 
+.B int -> int
+.sp
+
+.B lognot x
+is the bitwise logical negation of 
+.B x
+\&.
+
+.sp
+
+.I val shift_left 
+: 
+.B int -> int -> int
+.sp
+
+.B shift_left x n
+shifts 
+.B x
+to the left by 
+.B n
+bits\&. The result
+is unspecified if 
+.B n < 0
+or 
+.B n > 
+.B Sys\&.int_size
+\&.
+
+.sp
+
+.I val shift_right 
+: 
+.B int -> int -> int
+.sp
+
+.B shift_right x n
+shifts 
+.B x
+to the right by 
+.B n
+bits\&. This is an
+arithmetic shift: the sign bit of 
+.B x
+is replicated and inserted
+in the vacated bits\&. The result is unspecified if 
+.B n < 0
+or
+.B n > 
+.B Sys\&.int_size
+\&.
+
+.sp
+
+.I val shift_right_logical 
+: 
+.B int -> int -> int
+.sp
+
+.B shift_right x n
+shifts 
+.B x
+to the right by 
+.B n
+bits\&. This is a
+logical shift: zeroes are inserted in the vacated bits regardless
+of the sign of 
+.B x
+\&. The result is unspecified if 
+.B n < 0
+or
+.B n > 
+.B Sys\&.int_size
+\&.
+
+.sp
+
+.PP
+.SS Predicates and comparisons
+
+.PP
+
+.I val equal 
+: 
+.B int -> int -> bool
+.sp
+
+.B equal x y
+is 
+.B true
+iff 
+.B x = y
+\&.
+
+.sp
+
+.I val compare 
+: 
+.B int -> int -> int
+.sp
+
+.B compare x y
+is 
+.B compare
+.B  x y
+but more efficient\&.
+
+.sp
+
+.PP
+.SS Converting
+
+.PP
+
+.I val to_float 
+: 
+.B int -> float
+.sp
+
+.B to_float x
+is 
+.B x
+as a floating point number\&.
+
+.sp
+
+.I val of_float 
+: 
+.B float -> int
+.sp
+
+.B of_float x
+truncates 
+.B x
+to an integer\&. The result is
+unspecified if the argument is 
+.B nan
+or falls outside the range of
+representable integers\&.
+
+.sp
+
+.I val to_string 
+: 
+.B int -> string
+.sp
+
+.B to_string x
+is the written representation of 
+.B x
+in decimal\&.
+
+.sp
