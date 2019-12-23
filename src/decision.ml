@@ -227,9 +227,25 @@ let shortest_path graph source target : path =
    et le faire suivre un premier chemin.
 
 *)
-let plan visualize observation memory =
-  memory (* Students, this is your job! *)
 
+   let plan visualize observation memory = match memory.objective with
+  | Initializing ->
+     {
+       known_world = memory.known_world;
+       graph = Graph.empty;
+       objective = GoingTo(World.tree_positions observation.trees @ [observation.spaceship], []);   
+       targets = World.tree_positions observation.trees @ [observation.spaceship]                   
+     }
+  | Chopping -> memory 
+  | GoingTo (path1, path2) ->
+     {
+       known_world = memory.known_world;
+       graph = memory.graph;
+       (*on suppose ici le traitement que pour une obsrvation unique*)
+       objective = GoingTo(path1, path2);
+       targets = path1
+     }
+ ;;
 
 (**
 
