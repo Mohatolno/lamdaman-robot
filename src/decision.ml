@@ -264,9 +264,14 @@ let shortest_path graph source target : path =
    la vitesse et la direction du robot sont correctes.
 
 *)
-let next_action visualize observation memory =
-  Move (Space.angle_of_float 0., Space.speed_of_float 1.), memory
-
+let next_action visualize observation memory = match memory.objective with
+  |Initializing ->
+  |Chopping -> if (tree_at world observation.position).branches > 0
+      then ChopTree, memory
+      else GoingTo(List.tl memory.targets, (*utiliser fx aux *), mettre a jour memory
+  |GoingTo(path1, path2) ->
+    Move (Space.angle_of_float 0., Space.speed_of_float 1.), memory
+;;
 (**
 
    Comme promis, la fonction de décision est la composition
