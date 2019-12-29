@@ -307,10 +307,7 @@ let next_action visualize observation memory = match memory.objective with
       Move(observation.angle, Space.speed_of_float 0.), {memory with objective = Chopping}
 ;;
   
-  
-  
 (**
-
    Comme promis, la fonction de décision est la composition
    des trois fonctions du dessus.
 
