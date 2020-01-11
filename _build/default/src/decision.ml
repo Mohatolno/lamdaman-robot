@@ -19,6 +19,10 @@
    version de cette mémoire. Cette nouvelle version sera passée en
    argument à [decide] lors du prochain appel.
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> c84c4bb93ed8b8551583f333b66b979a4ec28e48
 *)
 
 open World
@@ -126,6 +130,10 @@ let string_of_objective = function
   | GoingTo (path, _) ->
      Printf.sprintf
        "going to %s" (String.concat " " (List.map string_of_position path))
+<<<<<<< HEAD
+=======
+       ;;
+>>>>>>> c84c4bb93ed8b8551583f333b66b979a4ec28e48
 
 (**
 
@@ -136,12 +144,20 @@ let string_of_objective = function
 
 *)
 type memory = {
+<<<<<<< HEAD
     known_world : World.t option;      (** Le monde connu par le robot.     *)
+=======
+    known_world : World.t option;      (** Le monde connu par le robot.     *) 
+>>>>>>> c84c4bb93ed8b8551583f333b66b979a4ec28e48
     graph       : Graph.t;             (** Un graphe qui sert de carte.     *)
     objective   : objective;           (** L'objectif courant du robot.     *)
     targets     : Space.position list; (** Les points où il doit se rendre. *)
 }
+<<<<<<< HEAD
 
+=======
+;;
+>>>>>>> c84c4bb93ed8b8551583f333b66b979a4ec28e48
 (**
 
    Initialement, le robot ne sait rien sur le monde, n'a aucune cible
@@ -154,7 +170,11 @@ let initial_memory = {
     objective   = Initializing;
     targets     = [];
 }
+<<<<<<< HEAD
 
+=======
+;;
+>>>>>>> c84c4bb93ed8b8551583f333b66b979a4ec28e48
 (**
 
    Traditionnellement, la fonction de prise de décision d'un robot
@@ -183,7 +203,11 @@ let discover visualize observation memory =
   if visualize then Visualizer.show ~force:true known_world;
   { memory with known_world = Some known_world }
 
+<<<<<<< HEAD
 
+=======
+;;
+>>>>>>> c84c4bb93ed8b8551583f333b66b979a4ec28e48
 (**
 
    Pour naviguer dans le monde, le robot construit une carte sous la
@@ -196,6 +220,7 @@ let discover visualize observation memory =
    Deux noeuds sont reliés par une arête si le segment dont ils
    sont les extremités ne croisent pas une bouche de l'enfer.
 
+<<<<<<< HEAD
  *)
 
 
@@ -301,11 +326,19 @@ let visibility_graph observation memory =
    *)
 
           
+=======
+*)
+let visibility_graph observation memory =
+  Graph.empty (* Students, this is your job! *)
+;;
+
+>>>>>>> c84c4bb93ed8b8551583f333b66b979a4ec28e48
 (**
 
    Il nous suffit maintenant de trouver le chemin le plus rapide pour
    aller d'une source à une cible dans le graphe.
 
+<<<<<<< HEAD
  *)
 
 
@@ -316,6 +349,13 @@ let shortest_path graph source target : path =
   [] (* Students, this is your job! *)
 
    *)
+=======
+*)
+let shortest_path graph source target : path =
+  [] (* Students, this is your job! *)
+
+;;
+>>>>>>> c84c4bb93ed8b8551583f333b66b979a4ec28e48
 (**
 
    [plan] doit mettre à jour la mémoire en fonction de l'objectif
@@ -331,15 +371,23 @@ let shortest_path graph source target : path =
    Si le robot est en phase d'initialisation, il faut fixer ses cibles
    et le faire suivre un premier chemin.
 
+<<<<<<< HEAD
 *)
 
 
   (*corriger le goingto *)
+=======
+ *)
+
+
+
+>>>>>>> c84c4bb93ed8b8551583f333b66b979a4ec28e48
 let plan visualize observation memory = match memory.objective with
   | Initializing ->
      {
        known_world = memory.known_world;
        graph = visibility_graph observation memory;
+<<<<<<< HEAD
        objective = GoingTo((World.tree_positions observation.trees) @ [observation.spaceship], []);  
        targets = (World.tree_positions observation.trees) @ [observation.spaceship]                  
      }
@@ -381,6 +429,15 @@ let chemin_initial ch_complet ch_restant =
      }
  ;;
 *)
+=======
+       objective = GoingTo((World.tree_positions observation.trees) @ [observation.spaceship], []);   
+       targets = (World.tree_positions observation.trees) @ [observation.spaceship]                   
+     }
+  | Chopping -> memory 
+  | GoingTo (path1, _) -> {memory with targets = path1}
+ ;;
+
+>>>>>>> c84c4bb93ed8b8551583f333b66b979a4ec28e48
 (**
 
    Next action doit choisir quelle action effectuer immédiatement en
@@ -397,16 +454,40 @@ let chemin_initial ch_complet ch_restant =
    Si l'objectif est de suivre un chemin, il faut s'assurer que
    la vitesse et la direction du robot sont correctes.
 
+<<<<<<< HEAD
 *)
 
  
 let next_action visualize observation memory = match memory.objective with
   |Initializing -> failwith "next_action : la planification n'a pas fait son role"
   |Chopping ->
+=======
+ *)
+   
+ (**
+    cette fonction auxiliaire faites par nous revoie le chemin initial 
+    à travers le chemin complet qui est la liste des cibles 
+  *)
+   
+let chemin_initial ch_complet ch_restant =
+  let rec aux acc l = match l with
+    |[] -> acc
+    |t::q -> if List.mem t ch_restant
+	     then aux acc q
+	     else aux (t::acc) q
+  in List.rev (aux [] ch_complet)
+;;
+  
+  
+let next_action visualize observation memory = match memory.objective with
+  |Initializing -> failwith "next_action : la planification n'a pas fait son role"
+  |Chopping -> 
+>>>>>>> c84c4bb93ed8b8551583f333b66b979a4ec28e48
     begin
       let knw_tree = (Option.get memory.known_world).trees in
       let tree = Option.get (World.tree_at knw_tree observation.position) in
       if tree.branches > 0 then
+<<<<<<< HEAD
 ChopTree,
 {memory with known_world =
         Some World.(update_tree (Option.get memory.known_world) tree {tree_position = tree.tree_position;branches = tree.branches-1});
@@ -464,6 +545,32 @@ let next_action visualize observation memory = match memory.objective with
 ;;*)
 (**
 
+=======
+	ChopTree,
+	{memory with known_world =
+        Some World.(update_tree (Option.get memory.known_world) tree {tree_position = tree.tree_position;branches = tree.branches-1}); 	
+	}
+      else
+	let (a,b) = List.hd (List.tl memory.targets) and (c,d) = observation.position in
+	let angle = atan2 (b -. d) (a -. c) in
+	Move(Space.angle_of_float angle, observation.max_speed),
+	{memory with objective = GoingTo(List.tl memory.targets,
+			     chemin_initial (World.tree_positions observation.trees @ [observation.spaceship]) (List.tl memory.targets))
+	}
+    end
+  |GoingTo(path1, _) ->
+    let knw_tree = (Option.get memory.known_world).trees in
+    let tree = World.tree_at knw_tree observation.position in	       
+    match tree with
+    |None -> let (a,b) = List.hd path1 and (c,d) = observation.position in
+	     let angle = atan2 (b -. d) (a -. c) in
+	     Move(Space.angle_of_float angle, observation.max_speed), memory
+    |Some _ ->
+      Move(observation.angle, Space.speed_of_float 0.), {memory with objective = Chopping}
+;;
+  
+(**
+>>>>>>> c84c4bb93ed8b8551583f333b66b979a4ec28e48
    Comme promis, la fonction de décision est la composition
    des trois fonctions du dessus.
 

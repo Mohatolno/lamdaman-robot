@@ -1,3 +1,7 @@
+<<<<<<< HEAD
 (lang dune 1.11)
+=======
+(lang dune 2.0)
+>>>>>>> c84c4bb93ed8b8551583f333b66b979a4ec28e48
 (name lambda-man)
 (version 0.1)
