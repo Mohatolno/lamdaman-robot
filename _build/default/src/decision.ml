@@ -1,3 +1,5 @@
+
+
 (**
 
    Chers programmeuses et programmeurs de λman, votre mission consiste
@@ -19,15 +21,28 @@
    version de cette mémoire. Cette nouvelle version sera passée en
    argument à [decide] lors du prochain appel.
 
-<<<<<<< HEAD
-=======
 
->>>>>>> c84c4bb93ed8b8551583f333b66b979a4ec28e48
 *)
 
 open World
 open Space
 
+module Key =
+  struct
+    type t = Graph.node
+    let compare = compare
+  end
+
+module Priority =
+  struct
+    type t = float
+    let infinity = 1000000.
+    let to_string x = string_of_float x
+    let compare = compare
+  end  
+
+module Q = PriorityQueue.Make(Key) (Priority);;
+       
 (** Le Λserver transmet les observations suivantes au λman: *)
 type observation = World.observation
 
@@ -130,10 +145,7 @@ let string_of_objective = function
   | GoingTo (path, _) ->
      Printf.sprintf
        "going to %s" (String.concat " " (List.map string_of_position path))
-<<<<<<< HEAD
-=======
        ;;
->>>>>>> c84c4bb93ed8b8551583f333b66b979a4ec28e48
 
 (**
 
@@ -144,20 +156,12 @@ let string_of_objective = function
 
 *)
 type memory = {
-<<<<<<< HEAD
-    known_world : World.t option;      (** Le monde connu par le robot.     *)
-=======
     known_world : World.t option;      (** Le monde connu par le robot.     *) 
->>>>>>> c84c4bb93ed8b8551583f333b66b979a4ec28e48
     graph       : Graph.t;             (** Un graphe qui sert de carte.     *)
     objective   : objective;           (** L'objectif courant du robot.     *)
     targets     : Space.position list; (** Les points où il doit se rendre. *)
 }
-<<<<<<< HEAD
-
-=======
 ;;
->>>>>>> c84c4bb93ed8b8551583f333b66b979a4ec28e48
 (**
 
    Initialement, le robot ne sait rien sur le monde, n'a aucune cible
@@ -170,11 +174,7 @@ let initial_memory = {
     objective   = Initializing;
     targets     = [];
 }
-<<<<<<< HEAD
-
-=======
 ;;
->>>>>>> c84c4bb93ed8b8551583f333b66b979a4ec28e48
 (**
 
    Traditionnellement, la fonction de prise de décision d'un robot
@@ -203,11 +203,7 @@ let discover visualize observation memory =
   if visualize then Visualizer.show ~force:true known_world;
   { memory with known_world = Some known_world }
 
-<<<<<<< HEAD
-
-=======
 ;;
->>>>>>> c84c4bb93ed8b8551583f333b66b979a4ec28e48
 (**
 
    Pour naviguer dans le monde, le robot construit une carte sous la
@@ -220,142 +216,245 @@ let discover visualize observation memory =
    Deux noeuds sont reliés par une arête si le segment dont ils
    sont les extremités ne croisent pas une bouche de l'enfer.
 
-<<<<<<< HEAD
  *)
 
 
-
-
-(*idée 
-reruperer tous les polygones de lenfer
-->puis la listes de leur nodes
-->recuperer la listes de tous les nodes du graphes
-->constuire tous les segments possibles
-->tester si les segments sont valides cad quils passent pas par hell
-->leur attribuer les distances pour obtenir les edges
-->creer le graphe
-*)
-
-
-    (*dans la tache2 on maj les fonctions precedentes 
-de sorte a eviter les bouches de l'enfer*)
-
-
-  (*les nodes du graphe sont :
-    les nodes des polygones 
-    la listes des arbres
-    la position du robot 
-    la position du vaisseau
-*)
-
-(*les nodes des polygones de hell*)
-(*let nodes_polygones observation =
-  let liste = space.polygone observation.arroud.kind(*le match peut etre*)in
-  let rec aux res 
-  in match liste with
-     |[]->res 
-     |a::b ->space.vertices a ::(aux res)
-    in aux [];;
-*)
-(*la liste de tous les nodes*)
-
-
-
-    (*let liste_nodes observation =
-let nodes_hell= nodes_polygones observation in 
-  [observation.position]@[observation.trees]@[nodes_hell]
-     *)
-
-(*je recupere la liste de tous les segements 
-pour chaque node je le relis a tous les autres 
-puis j'enleve la repitition 
-a la fin je verfie si ca passe pas dans hell 
-c'est quoi le poid du segement
-la distance de se segment
-a la fin je leur attribue l'attribut distance que je vais calculer pour chaque segment
-donc je transforme la liste de segment en une liste de edge
-*)
-
-
-(*attention a ne pas rajouter les nodes de hell avec les autres *)
-(*renvoie le liste des segement 
-ps:faut juste enlever les segments sous forme de point *)
-(*segment intersect et polygone_segment*)
-
-
-
-
-
-
-
-(*
-let rec segment_liste l = match l with 
-	[]->[]
-	|a::b->(List.map(fun a ->( List.hd l,a )) l)
-	@ (segment_liste b);;
- *)
-
-(*pour chaque node je verifie qu'il passe pas par ceux de hell *)
-(**)
-
-
-
-
-
-
-
-(*let segment_valide observation =
-  (*verfier qu'on a pas les nodes de hell*)
-  let ln=liste_nodes observation in
-  let lh=
-  let ls=segment_liste ln in
-  match ls with
-    []->[]
- *)
-
-let visibility_graph observation memory =
-  Graph.empty (* Students, this is your job! *)
-
-  
-  (*                  
-  let n = 
-  (*j'avoute au graph des nodes*)
-  let grp = add_node memory.graph n
-                      in  make (liste_node )
-           
-   *)
-
-          
-=======
-*)
-let visibility_graph observation memory =
-  Graph.empty (* Students, this is your job! *)
+(** renvoie une liste de segments à partir d'une liste de position *)
+let set_segments l =
+  try
+    let rec aux ll (acc : segment list) = match ll with
+      |[] -> acc
+      |[x] -> acc
+      |t::q -> aux q ((List.map (fun x -> (t,x)) q) @ acc)
+    in aux l []
+  with _ -> failwith "set_segments"
 ;;
 
->>>>>>> c84c4bb93ed8b8551583f333b66b979a4ec28e48
+(** renvoie la liste des segments des tous les hells *)
+(**let set_hells_segments hells_list =
+  let rec aux ll (acc : segment list) = match ll with
+  |[] -> acc
+  |t::q -> aux q ((polygon_segments t) @ acc)
+  in aux hells_list []
+;;*)
+  
+(** renvoie un booleen si un segment coupe ou pas les segments d'un hell *)
+let segment_cut_hell seg hell_seg_list =
+  List.exists (segment_intersects seg) hell_seg_list
+;;
+
+(** renvoie la liste des segments qui ne coupent pas un hell*)
+let valid_segments seg_list hell_seg_list =
+  try
+    let rec aux l acc = match l with
+      |[] -> acc
+      |t::q -> if (segment_cut_hell t hell_seg_list) then aux q acc
+	       else aux q (t::acc)
+    in aux seg_list []
+  with _ -> failwith "all_valid_segments"
+;;
+
+(** convertie une distance en float *)
+let float_to_distance d = match d with
+  |Distance a -> a
+;;
+  
+(** renvoie la liste des aretes valides du graphe *)
+let set_edges valid_segments_list =
+  try
+    let rec aux l (acc : Graph.edge list) = match l with
+      |[] -> acc
+      |(p1,p2)::q -> let dist = float_to_distance (dist2 p1 p2) in
+		     (**let dist = sqrt (((x2 -. x1)**2.) +. ((y2 -. y1)**2.)) in*)
+		     aux q ((p1,p2,dist)::acc)
+    in aux valid_segments_list []
+  with _ -> failwith "set_edges"
+;; 
+
+(** retourne les segments des champs de souffrance *)
+let ground_segments world = List.(
+  Space.polygons world.space (( <> ) Hell)
+  |> map Space.polygon_segments
+  |> flatten
+)
+
+
+(** retourne les sommets des hells/champs de souffrance elargis *)
+  let increase_seg seg_list inc =
+    try
+      let rec aux l acc = match l with
+	|[] -> acc
+	|((x1,y1),(x2,y2))::q -> match y1,y2 with
+				 |y1,y2 when y1>y2 -> aux q ((x1,(y1 +. inc))::(x2,(y2 -. inc))::acc)
+				 |y1,y2 when y1<y2 -> aux q ((x1,(y1 -. inc))::(x2,(y2 +. inc))::acc)
+				 |_,_ -> match x1,x2 with
+					 |x1,x2 when x1>x2 -> aux q (((x1 +. inc),y1)::((x2 -. inc),y2)::acc)
+					 |x1,x2 when x1<x2 -> aux q (((x1 -. inc),y1)::((x2 +. inc),y2)::acc)
+					 |_,_ -> aux q acc
+      in aux seg_list []
+    with _ -> failwith "increase_seg"
+;;
+
+
+
+
+(** retourne le float du ground *)
+(**let get_ground_float (Ground x) = x;;*)
+
+let type_ground x = if x="allowed" then (<) else (>);;
+  
+
+(** retourne les polygones de souffrance qui depassent la valeur de la marge de la vitesse du robot en fonction d'un seuil
+    [marginSpeed] en %, 
+ *)
+let polygons_not_allowed_margin_speed list_poly_souff marginSpeed robotSpeed =
+  let rec aux l acc = match l with
+    |[] -> acc
+    |t::q -> match (content t) with
+	     |Ground f -> let robot_speed = Space.float_of_speed robotSpeed in
+			  let now_speed = robot_speed *. f in
+			  if (100. -. ((now_speed *. 100.) /. robot_speed)) > marginSpeed
+			  then aux q (t::acc)
+			  else aux q acc
+	     |_ -> aux q acc
+  in aux list_poly_souff []
+;;
+  
+let visibility_graph observation memory =
+  try
+    let nodes_arbres : (Graph.node list)  = tree_positions (Option.get memory.known_world).trees in 
+  
+    (**let list_polygon : ((kind polygon) list) = polygons observation.around ((=)Hell) in*)
+
+    let list_polygon_souff : ((kind polygon) list) = polygons observation.around ((<>)Hell) in
+    let poly_souff_notAllowed_speed = polygons_not_allowed_margin_speed list_polygon_souff (10.) observation.speed in
+   
+    
+    (**let nodes_poly_souff : (Graph.node list) = List.flatten (List.map (fun p -> vertices p) list_polygon_souff) in*)
+
+    let nodes_hell = increase_seg (hell_segments (Option.get memory.known_world)) 0.5 in
+    let nodes_ground = increase_seg (ground_segments (Option.get memory.known_world)) 0.5 in 
+    let nodes_ground_notIN_hell = List.filter (fun x -> false=(inside_hell (Option.get memory.known_world) x)) nodes_ground in
+    let list_nodes = observation.position::(observation.spaceship)::(nodes_arbres @ nodes_hell @ nodes_ground_notIN_hell) in
+    
+    let all_segments = set_segments list_nodes in    
+    let segments_hell = hell_segments (Option.get memory.known_world) in
+    let segments_ground_notAllow_speed = List.flatten (List.map (fun p -> polygon_segments p) poly_souff_notAllowed_speed) in
+    
+    let segments_not_cut_hells  = valid_segments all_segments segments_hell in
+    let list_segments_not_cut_grounds = valid_segments segments_not_cut_hells segments_ground_notAllow_speed in
+    
+    let list_edges = set_edges list_segments_not_cut_grounds in
+    Graph.make list_nodes list_edges
+  with _ -> failwith "visibility_graph : erreur"
+;;
+
+
+  
 (**
 
    Il nous suffit maintenant de trouver le chemin le plus rapide pour
    aller d'une source à une cible dans le graphe.
 
-<<<<<<< HEAD
  *)
 
-
-
-
-  (*
-let shortest_path graph source target : path =
-  [] (* Students, this is your job! *)
-
-   *)
-=======
-*)
-let shortest_path graph source target : path =
-  [] (* Students, this is your job! *)
-
+(** initialisation des tabeaux des distances et predecesseurs *)
+let initialisation source_node nodes_list =
+  try
+    let rec aux l acc_dist acc_pred = match l with
+      |[] -> (acc_dist, acc_pred)
+      |t::q -> if source_node = t then aux q ((t,0.)::acc_dist) ((t,(infinity,infinity))::acc_pred)
+	       else aux q ((t,Priority.infinity)::acc_dist) ((t,(infinity,infinity))::acc_pred)
+    in aux nodes_list [] []
+  with _ -> failwith "initialisation"
 ;;
->>>>>>> c84c4bb93ed8b8551583f333b66b979a4ec28e48
+
+(** fonctions de mise à jour des distances et des predecesseurs *)
+let update_dist list_dist node =
+  let (n,_) = node in
+  List.filter (fun x -> n!=(fst x)) list_dist
+and update_pred list_pred node =
+  let (n,_) = node in
+  List.filter (fun x -> n!=(fst x)) list_pred
+;;
+
+  
+(** fonction qui met à jour les distances, predecesseurs et la file des aretes sortants du minimum extrait*)				 
+let maj list_dist list_pred graph queue min =
+  try
+    let rec aux aretes acc_dist acc_pred acc_queue = match aretes with
+      |[] -> (acc_dist, acc_pred, acc_queue)
+      |(_,p2,dist)::q ->
+	let v = List.find (fun x -> p2=(fst x)) acc_dist in
+	if snd v > (snd min) +. dist
+	then aux q ((fst v,snd min +. dist)::(update_dist acc_dist v)) ((fst v,fst min)::(update_pred acc_pred v)) (Q.decrease acc_queue (fst v) (snd min +. dist))
+      else aux q acc_dist acc_pred acc_queue
+    in aux (Graph.out graph (fst min)) list_dist list_pred queue
+  with _ -> failwith "maj"
+;;
+
+  
+(** boucle de mise de tous les noeuds (minimum) extraits à tour de role *)
+let djisktra_maj queue list_dist list_pred graph  =
+  try
+    let rec aux len acc_dist acc_pred acc_queue = match len with
+      |0 -> (acc_dist, acc_pred)
+      |_ -> let (p,n) = Option.get (Q.get_min acc_queue) in
+	    let (a,b) = n in
+	    let min = (n,p) in
+	    let queue = Q.remove_min acc_queue in
+	    let (dist,pred,queue) = maj acc_dist acc_pred graph queue min in
+	  aux (Q.length queue) dist pred queue
+    in aux (Q.length queue) list_dist list_pred queue
+  with _ -> failwith "djikstra : erreur"
+;;
+
+(** fonction qui insere tous les noeuds dans la file *)
+let fill_queue queue list =
+  try
+    let rec aux l acc_queue = match l with
+      |[] -> acc_queue
+      |(n,p)::q -> aux q (Q.insert acc_queue n p)
+    in aux list queue
+  with _ -> failwith "fill_queue"
+;;
+
+  let rec aff list = match list with
+  |[]-> Printf.eprintf ""
+  |((n1,n2),m)::q -> Printf.eprintf "\n node : %f,%f -- dist : %f" n1 n2 m;
+     aff q 
+;;
+  
+(** algorithme de djikstra, retourne les distances et les predecesseurs *)
+let djikstra graph source =
+  try
+    let nodes_list = Graph.nodes graph in
+    let (dist,pred) = initialisation source nodes_list in
+    let queue = Q.empty in
+    let queue = fill_queue queue dist in               (* nodes_list ou dist ?  *)
+    djisktra_maj queue dist pred graph
+  with _ -> failwith "djikstra"
+;;
+       
+(** Retourne le chemin entre la source et la cible *)
+let find_predecessor source target list_pred =
+  try
+    Printf.eprintf "\n len predecessors -- %d \n" (List.length list_pred);
+    let rec aux cible acc_path =
+      let (node,parent) = try List.find (fun x -> cible=(fst x)) list_pred with Not_found -> failwith "pas de cible trouve dans l_pred" in
+      if parent = (infinity,infinity) then begin Printf.eprintf "\n nouveau chemin : %s \n" (string_of_path acc_path); acc_path end
+      else aux parent (node::acc_path)
+    in aux target []
+with _ -> failwith "find_predecessor : erreur"
+;;
+
+  
+let shortest_path graph source target : path = 
+  try
+    let (dist,pred) = djikstra graph source in
+    find_predecessor source target pred
+  with _ -> failwith "shortespath : erreur"
+;;
 (**
 
    [plan] doit mettre à jour la mémoire en fonction de l'objectif
@@ -371,73 +470,49 @@ let shortest_path graph source target : path =
    Si le robot est en phase d'initialisation, il faut fixer ses cibles
    et le faire suivre un premier chemin.
 
-<<<<<<< HEAD
-*)
-
-
-  (*corriger le goingto *)
-=======
  *)
 
 
-
->>>>>>> c84c4bb93ed8b8551583f333b66b979a4ec28e48
-let plan visualize observation memory = match memory.objective with
-  | Initializing ->
-     {
-       known_world = memory.known_world;
-       graph = visibility_graph observation memory;
-<<<<<<< HEAD
-       objective = GoingTo((World.tree_positions observation.trees) @ [observation.spaceship], []);  
-       targets = (World.tree_positions observation.trees) @ [observation.spaceship]                  
-     }
-  | Chopping -> memory
-  | GoingTo (path1, _) -> {memory with targets = path1}
- ;;
-
-
-
-
-let chemin_initial ch_complet ch_restant =
-  let rec aux acc l = match l with
+(** renvoie les segments d'un chemin  *)
+let segs_of_path path =
+  let rec aux l acc = match l with
     |[] -> acc
-    |t::q -> if List.mem t ch_restant
-    then aux acc q
-    else aux (t::acc) q
-  in List.rev (aux [] ch_complet)
+    |[x] -> acc
+    |t::tt::q -> aux (tt::q) ((t,tt)::acc)
+  in List.rev (aux path [])
 ;;
- 
+  
+(** determine si un chemin est valide  *)				 
+let path_is_valid path segs_hell =
+  let rec aux l acc = match l with
+    |[] -> acc
+    |t::q -> if (List.exists (fun x -> true=(segment_intersects t x)) segs_hell)
+	     then aux q false
+	     else aux q true
+  in aux path false
+;;
 
+let plan visualize observation memory = match memory.objective with
+  |Initializing ->
+    let short_path = shortest_path (visibility_graph observation memory) observation.position (List.hd ((World.tree_positions observation.trees) @ [observation.spaceship])) in
+    {
+      known_world = memory.known_world;
+      graph = visibility_graph observation memory;
+      objective = GoingTo(short_path, []);
+      targets = (World.tree_positions observation.trees) @ [observation.spaceship]                   
+    }
+  |Chopping -> memory 
+  |GoingTo (path1, path2) ->
+    let path_segments = segs_of_path path1 in
+    let hellsegments = hell_segments (Option.get memory.known_world) in
+    Printf.eprintf "\n chemin is valide : %b \n" (path_is_valid path_segments hellsegments) ;
+    if (path_is_valid path_segments hellsegments)
+    then {memory with graph = visibility_graph observation memory}
+    else
+      let short_path = shortest_path (visibility_graph observation memory) observation.position (List.hd memory.targets) in
+      {memory with objective = GoingTo(short_path, path2); graph = visibility_graph observation memory}
+;;
 
- (* 
-   let plan visualize observation memory = match memory.objective with
-  | Initializing ->
-     {
-       known_world = memory.known_world;
-       graph = Graph.empty;
-       objective = GoingTo(World.tree_positions observation.trees @ [observation.spaceship], []);   
-       targets = World.tree_positions observation.trees @ [observation.spaceship]                   
-     }
-  | Chopping -> memory 
-  | GoingTo (path1, path2) ->
-     {
-       known_world = memory.known_world;
-       graph = memory.graph;
-       (*on suppose ici le traitement que pour une obsrvation unique*)
-       objective = GoingTo(path1, path2);
-       targets = path1
-     }
- ;;
-*)
-=======
-       objective = GoingTo((World.tree_positions observation.trees) @ [observation.spaceship], []);   
-       targets = (World.tree_positions observation.trees) @ [observation.spaceship]                   
-     }
-  | Chopping -> memory 
-  | GoingTo (path1, _) -> {memory with targets = path1}
- ;;
-
->>>>>>> c84c4bb93ed8b8551583f333b66b979a4ec28e48
 (**
 
    Next action doit choisir quelle action effectuer immédiatement en
@@ -454,14 +529,6 @@ let chemin_initial ch_complet ch_restant =
    Si l'objectif est de suivre un chemin, il faut s'assurer que
    la vitesse et la direction du robot sont correctes.
 
-<<<<<<< HEAD
-*)
-
- 
-let next_action visualize observation memory = match memory.objective with
-  |Initializing -> failwith "next_action : la planification n'a pas fait son role"
-  |Chopping ->
-=======
  *)
    
  (**
@@ -470,112 +537,71 @@ let next_action visualize observation memory = match memory.objective with
   *)
    
 let chemin_initial ch_complet ch_restant =
-  let rec aux acc l = match l with
-    |[] -> acc
-    |t::q -> if List.mem t ch_restant
-	     then aux acc q
-	     else aux (t::acc) q
-  in List.rev (aux [] ch_complet)
+  try
+    let rec aux acc l = match l with
+      |[] ->  acc
+      |t::q -> if List.mem t ch_restant
+	       then aux acc q
+	       else aux (t::acc) q
+    in List.rev (aux [] ch_complet)
+  with _ -> failwith "chemin_initial"
 ;;
   
   
 let next_action visualize observation memory = match memory.objective with
   |Initializing -> failwith "next_action : la planification n'a pas fait son role"
   |Chopping -> 
->>>>>>> c84c4bb93ed8b8551583f333b66b979a4ec28e48
     begin
-      let knw_tree = (Option.get memory.known_world).trees in
-      let tree = Option.get (World.tree_at knw_tree observation.position) in
-      if tree.branches > 0 then
-<<<<<<< HEAD
-ChopTree,
-{memory with known_world =
-        Some World.(update_tree (Option.get memory.known_world) tree {tree_position = tree.tree_position;branches = tree.branches-1});
-}
+      if(observation.speed = Space.speed_of_float 0.) then
+	let tree = Option.get (World.tree_at ((Option.get memory.known_world).trees) observation.position) in
+	if tree.branches > 0 then
+	  ChopTree, {memory with known_world =
+				   Some World.(update_tree (Option.get memory.known_world) tree {tree_position = tree.tree_position;
+												 branches = tree.branches-1});
+	  }
+	else
+	  let short_path = shortest_path (visibility_graph observation memory) observation.position (List.hd (List.tl memory.targets)) in
+	  let (a,b) = List.hd short_path and (c,d) = observation.position in
+	  let angle = atan2 (b -. d) (a -. c) in
+	  Move(Space.angle_of_float angle, observation.max_speed),
+	  {memory with objective = GoingTo(short_path, []); targets = List.tl memory.targets; graph = visibility_graph observation memory}
       else
-let (a,b) = List.hd (List.tl memory.targets) and (c,d) = observation.position in
-let angle = atan2 (b -. d) (a -. c) in
-Move(Space.angle_of_float angle, observation.max_speed),
-{memory with objective = GoingTo(List.tl memory.targets,
-    chemin_initial (World.tree_positions observation.trees @ [observation.spaceship]) (List.tl memory.targets))
-}
-    end
-  |GoingTo(path1, _) ->
-    let knw_tree = (Option.get memory.known_world).trees in
-    let tree = World.tree_at knw_tree observation.position in      
-    match tree with
-    |None -> let (a,b) = List.hd path1 and (c,d) = observation.position in
-    let angle = atan2 (b -. d) (a -. c) in
-    Move(Space.angle_of_float angle, observation.max_speed), memory
-    |Some _ ->
-      Move(observation.angle, Space.speed_of_float 0.), {memory with objective = Chopping}
-;;
-
-(*
-
-let next_action visualize observation memory = match memory.objective with
-  |Initializing -> failwith "erreur initialisation de planification "
-  |Chopping -> let knw = (Option.get memory.known_world).trees in
-      let tree = Option.get (tree_at knw observation.position) in
-      if tree.branches > 0
-      then ChopTree,
-   {
-     known_world =
-Some (update_tree (Option.get memory.known_world) tree {tree_position = tree.tree_position; branches = tree.branches-1}) ;
-     graph = memory.graph;
-     objective = memory.objective;
-     targets = memory.targets;
-   }
-      else Move(observation.angle, observation.max_speed), memory
-              (** GoingTo(List.tl memory.targets, chemin_initial (World.tree_positions observation.trees) memory.targets), memory)*)
-  |GoingTo(path1, path2) ->  Move (Space.angle_of_float 0., Space.speed_of_float 1.),  memory
-;;
-*)
-
-(*Space.angle_of_float (3. *. Float.pi /. 2.)*)
-
-(*
-let next_action visualize observation memory = match memory.objective with
-  |Initializing ->
-  |Chopping -> if (tree_at world observation.position).branches > 0
-      then ChopTree, memory
-      else GoingTo(List.tl memory.targets, (*utiliser fx aux *), mettre a jour memory
-  |GoingTo(path1, path2) ->
-    Move (Space.angle_of_float 0., Space.speed_of_float 1.), memory
-;;*)
-(**
-
-=======
-	ChopTree,
-	{memory with known_world =
-        Some World.(update_tree (Option.get memory.known_world) tree {tree_position = tree.tree_position;branches = tree.branches-1}); 	
-	}
-      else
-	let (a,b) = List.hd (List.tl memory.targets) and (c,d) = observation.position in
+	Move(observation.angle, observation.max_speed), memory
+	(**let short_path = shortest_path (visibility_graph observation memory) observation.position (List.hd memory.targets) in
+	let (a,b) = List.hd short_path and (c,d) = observation.position in
 	let angle = atan2 (b -. d) (a -. c) in
 	Move(Space.angle_of_float angle, observation.max_speed),
-	{memory with objective = GoingTo(List.tl memory.targets,
-			     chemin_initial (World.tree_positions observation.trees @ [observation.spaceship]) (List.tl memory.targets))
-	}
+	{memory with objective = GoingTo(short_path,[]); graph = visibility_graph observation memory}*)
     end
-  |GoingTo(path1, _) ->
+  |GoingTo(path1, path2) ->
+    let cible = List.hd path1 and target = List.hd memory.targets in
+    Printf.eprintf "\n cible : %f,%f \n" (fst cible) (snd cible)  ;
+    Printf.eprintf "\n target : %f,%f \n" (fst target) (snd target) ;
+    let short_path = shortest_path (visibility_graph observation memory) observation.position (List.hd memory.targets) in
     let knw_tree = (Option.get memory.known_world).trees in
     let tree = World.tree_at knw_tree observation.position in	       
     match tree with
-    |None -> let (a,b) = List.hd path1 and (c,d) = observation.position in
+    |None -> let (a,b) = List.hd short_path and (c,d) = observation.position in
 	     let angle = atan2 (b -. d) (a -. c) in
-	     Move(Space.angle_of_float angle, observation.max_speed), memory
-    |Some _ ->
-      Move(observation.angle, Space.speed_of_float 0.), {memory with objective = Chopping}
+	     Move(Space.angle_of_float angle, observation.max_speed),
+	     {memory with objective = GoingTo(short_path, path2); graph = visibility_graph observation memory}
+      (**let (a,b) = List.hd short_path and (c,d) = observation.position in
+      let angle = atan2 (b -. d) (a -. c) in
+      Move(Space.angle_of_float angle, observation.max_speed),
+      {memory with objective = GoingTo(short_path, path2); graph = visibility_graph observation memory}*)
+    |Some t ->
+      Move(observation.angle, Space.speed_of_float 0.), {memory with objective = Chopping; graph = visibility_graph observation memory}
 ;;
   
+  
+  
 (**
->>>>>>> c84c4bb93ed8b8551583f333b66b979a4ec28e48
+
    Comme promis, la fonction de décision est la composition
    des trois fonctions du dessus.
 
 *)
 let decide visualize observation memory : action * memory =
   let memory = discover visualize observation memory in
-  let memory = plan visualize observation memory in
+  let memory = plan visualize observation memory in Visualizer.show_graph (visibility_graph observation memory);
   next_action visualize observation memory
