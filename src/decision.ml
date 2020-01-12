@@ -276,59 +276,44 @@ let ground_segments world = List.(
   |> flatten
 )
 
+   
+let max_list list =
+  let rec aux l = match l with
+    |[] -> failwith "impossible"
+    |[x] -> x
+    |t::tt::q -> aux ((max t tt)::q)
+  in aux list
+;;
 
-(** retourne les sommets des hells/champs de souffrance elargis *)
-  (**let increase_seg seg_list inc =
-    try
-      let rec aux l acc = match l with
-|[] -> acc
-|((x1,y1),(x2,y2))::q -> match y1,y2 with
-|y1,y2 when y1>y2 -> aux q ((x1,(y1 +. inc))::(x2,(y2 -. inc))::acc)
-|y1,y2 when y1<y2 -> aux q ((x1,(y1 -. inc))::(x2,(y2 +. inc))::acc)
-|_,_ -> match x1,x2 with
-|x1,x2 when x1>x2 -> aux q (((x1 +. inc),y1)::((x2 -. inc),y2)::acc)
-|x1,x2 when x1<x2 -> aux q (((x1 -. inc),y1)::((x2 +. inc),y2)::acc)
-|_,_ -> aux q acc
-      in aux seg_list []
-    with _ -> failwith "increase_seg"
-  ;;**)
+let min_list list =
+  let rec aux l = match l with
+    |[] -> failwith "impossible"
+    |[x] -> x
+    |t::tt::q -> aux ((min t tt)::q)
+  in aux list
+;;
 
- 
-
-
-
-  (** retourne la plus petite position en fonction de ses coordonnées *)
-  let min_position_dist_poly poly =
+  (** retourne la plus petite et la plus grand position d'un polygon en fonction de ses coordonnées ainsi la longueur de son coté *)
+  let min_max_position_dist_poly poly =
     let l_vertic = vertices poly in
     let l_segments = polygon_segments poly in
     let (seg_x,seg_y) = List.hd l_segments in
     let seg_dist = float_to_distance (dist2 seg_x seg_y) in
-    let rec aux l = match l with
-      |[] -> failwith "impossible"
-      |[x] -> (x, seg_dist)
-      |t::tt::q -> aux ((min t tt)::q)
-    in aux l_vertic
+    let min_pos = min_list l_vertic in
+    let max_pos = max_list l_vertic in
+    (min_pos,max_pos,seg_dist)
   ;;
 
-  (** retourne les carrés des positions decalées des hell/souffrance *)
-  let get_square_of_position_dist list_poly inc =
-    let rec aux l acc = match l with
-      |[] -> acc
-      |t::q -> let ((x,y), cote) = min_position_dist_poly t in
-      aux q (((x -. inc, y -. inc), cote +. (inc *. 2.), Space.content t)::acc)
-    in aux list_poly []
+  (** retourne les sommets des hells/champs de souffrance elargis *)
+  let increase_seg poly_list inc =
+    try
+      let rec aux l acc = match l with
+|[] -> acc
+|t::q -> let ((x1,y1), (x2,y2), cote) = min_max_position_dist_poly t in
+aux q ((x1 -. inc,y1 -. inc)::(x1 -. inc,y1 +. cote +. inc)::(x2 +. inc,y2 +. inc)::(x2 +. inc,y2 -. cote -. inc)::acc)  
+      in aux poly_list []
+    with _ -> failwith "increase_seg"
   ;;
-
-  (** retourne les sommets des carres construits *)
-  let get_sommets_carres list_poly inc  =
-    let l_org_cote = get_square_of_position_dist list_poly inc in
-    let rec aux l acc = match l with
-      |[] -> acc
-      |(org,cote,contenu)::q -> aux q ((vertices (Space.square org cote contenu))::acc)
-    in  List.flatten (aux l_org_cote [])    
-  ;;
-
- 
 
 
 (** retourne le float du ground *)
@@ -357,7 +342,7 @@ let visibility_graph observation memory =
   try
     let nodes_arbres : (Graph.node list)  = tree_positions (Option.get memory.known_world).trees in
  
-    let list_polygon : ((kind polygon) list) = polygons observation.around ((=)Hell) in
+    let list_polygon : ((kind polygon) list) = polygons (Option.get memory.known_world).space ((=)Hell) in
 
     let list_polygon_souff : ((kind polygon) list) = polygons observation.around ((<>)Hell) in
     let poly_souff_notAllowed_speed = polygons_not_allowed_margin_speed list_polygon_souff (10.) observation.speed in
@@ -365,10 +350,8 @@ let visibility_graph observation memory =
    
     (**let nodes_poly_souff : (Graph.node list) = List.flatten (List.map (fun p -> vertices p) list_polygon_souff) in*)
 
-    (**let nodes_hell = increase_seg (hell_segments (Option.get memory.known_world)) 1. in*)
-    let nodes_hell = get_sommets_carres list_polygon 1. in
-    let nodes_ground = get_sommets_carres list_polygon_souff 1. in
-    (**let nodes_ground = increase_seg (ground_segments (Option.get memory.known_world)) 0.5 in*)
+    let nodes_hell = increase_seg list_polygon 1. in
+    let nodes_ground = increase_seg list_polygon_souff 5. in
     let nodes_ground_notIN_hell = List.filter (fun x -> false=(inside_hell (Option.get memory.known_world) x)) nodes_ground in
     let list_nodes = observation.position::(observation.spaceship)::(nodes_arbres @ nodes_hell @ nodes_ground_notIN_hell) in
    
@@ -604,29 +587,14 @@ Move(Space.angle_of_float angle, observation.max_speed),
     let knw_tree = (Option.get memory.known_world).trees in
     let tree = World.tree_at knw_tree observation.position in      
     match tree with
-    |None -> (**let short_path = shortest_path (visibility_graph observation memory) observation.position (List.hd memory.targets) in
-    let (a,b) = List.hd short_path and (c,d) = observation.position in
-    let angle = atan2 (b -. d) (a -. c) in
-    Move(Space.angle_of_float angle, observation.max_speed),
-    {memory with objective = GoingTo(short_path, path2); graph = visibility_graph observation memory}
-      let (a,b) = List.hd short_path and (c,d) = observation.position in
-      let angle = atan2 (b -. d) (a -. c) in*)
-      let (x2,y2) = List.hd path1 and (x1,y1) = observation.position in
-      if (dist2 (x1,y1) (x2,y2)) = Distance 0.
-      then
-let (a,b) = List.hd (List.tl path1) and (c,d) = observation.position in
-let angle = atan2 (b -. d) (a -. c) in
-Move(Space.angle_of_float angle, observation.max_speed),
-{memory with objective = GoingTo(List.tl path1, path2); graph = visibility_graph observation memory}
-      else if (close (x1,y1) (x2,y2) 0.9) then
+    |None ->
+      let (x2,y2) = List.hd path1 and (x1,y1) = observation.position in      
+      if (close (x1,y1) (x2,y2) 1.) then
 begin
- let (a,b) = List.hd path1 and (c,d) = observation.position in
+ let (a,b) = List.hd (List.tl path1) and (c,d) = observation.position in
  let angle = atan2 (b -. d) (a -. c) in
- let vitesse = ((Space.float_of_speed observation.speed) /. 3.) *. 2. in
- Printf.eprintf "\n ralentis------------------------------------------------------------------------------ : %f \n" vitesse;
- Move(Space.angle_of_float angle, Space.speed_of_float 0.1),
- {memory with objective = GoingTo(List.tl path1, path2); graph = visibility_graph observation memory}
- 
+ Move(Space.angle_of_float angle, observation.max_speed),
+ {memory with objective = GoingTo(List.tl path1, path2); graph = visibility_graph observation memory}  
 end
       else
 let (a,b) = List.hd path1 and (c,d) = observation.position in
@@ -634,7 +602,13 @@ let angle = atan2 (b -. d) (a -. c) in
 Move(Space.angle_of_float angle, observation.max_speed),
 {memory with objective = GoingTo(path1, path2); graph = visibility_graph observation memory}
     |Some t ->
-       Move(observation.angle, Space.speed_of_float 0.), {memory with objective = Chopping}
+      if t.tree_position = List.hd memory.targets then
+Move(observation.angle, Space.speed_of_float 0.), {memory with objective = Chopping}
+      else
+let (a,b) = List.hd path1 and (c,d) = observation.position in
+let angle = atan2 (b -. d) (a -. c) in
+Move(Space.angle_of_float angle, observation.max_speed),
+{memory with objective = GoingTo(path1, path2); graph = visibility_graph observation memory}
 ;;
  
  
@@ -649,4 +623,3 @@ let decide visualize observation memory : action * memory =
   let memory = discover visualize observation memory in
   let memory = plan visualize observation memory in Visualizer.show_graph (visibility_graph observation memory);
   next_action visualize observation memory
-
