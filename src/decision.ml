@@ -1,3 +1,4 @@
+
 (**
 
    Chers programmeuses et programmeurs de λman, votre mission consiste
@@ -152,12 +153,14 @@ let string_of_objective = function
 
   On vous propose de structurer la mémoire comme suit:
 
-*)
+ *)
 type memory = {
-    known_world : World.t option;      (** Le monde connu par le robot.     *)
-    graph       : Graph.t;             (** Un graphe qui sert de carte.     *)
-    objective   : objective;           (** L'objectif courant du robot.     *)
-    targets     : Space.position list; (** Les points où il doit se rendre. *)
+  id          : int;                 (** identifiant de la memoire        *)
+  start       : bool;                (** statut robot fin initialisation  *)        
+  known_world : World.t option;      (** Le monde connu par le robot.     *)
+  graph       : Graph.t;             (** Un graphe qui sert de carte.     *)
+  objective   : objective;           (** L'objectif courant du robot.     *)
+  targets     : Space.position list; (** Les points où il doit se rendre. *)
 }
 ;;
 (**
@@ -167,10 +170,12 @@ type memory = {
 
 *)
 let initial_memory = {
-    known_world = None;
-    graph       = Graph.empty;
-    objective   = Initializing;
-    targets     = [];
+  id          = -1;
+  start       = false;
+  known_world = None;
+  graph       = Graph.empty;
+  objective   = Initializing;
+  targets     = [];
 }
 ;;
 (**
@@ -343,16 +348,15 @@ let visibility_graph observation memory =
     let nodes_arbres : (Graph.node list)  = tree_positions (Option.get memory.known_world).trees in
  
     let list_polygon : ((kind polygon) list) = polygons (Option.get memory.known_world).space ((=)Hell) in
-
     let list_polygon_souff : ((kind polygon) list) = polygons (Option.get memory.known_world).space ((<>)Hell) in
-    let poly_souff_notAllowed_speed = polygons_not_allowed_margin_speed list_polygon_souff (10.) observation.speed in
-   
+    let poly_souff_notAllowed_speed = polygons_not_allowed_margin_speed list_polygon_souff (10.) observation.speed in  
    
     (**let nodes_poly_souff : (Graph.node list) = List.flatten (List.map (fun p -> vertices p) list_polygon_souff) in*)
-
+   
     let nodes_hell = increase_seg list_polygon 1. in
-    let nodes_ground = increase_seg list_polygon_souff 5. in
+    let nodes_ground = increase_seg list_polygon_souff 1. in
     let nodes_ground_notIN_hell = List.filter (fun x -> false=(inside_hell (Option.get memory.known_world) x)) nodes_ground in
+    (**let node_microcodes = List.map (fun x -> x.microcode_position) observation.messages in*)
     let list_nodes = observation.position::(observation.spaceship)::(nodes_arbres @ nodes_hell @ nodes_ground_notIN_hell) in
    
     let all_segments = set_segments list_nodes in    
@@ -366,7 +370,6 @@ let visibility_graph observation memory =
     Graph.make list_nodes list_edges
   with _ -> failwith "visibility_graph : erreur"
 ;;
-
 
  
 (**
@@ -443,7 +446,7 @@ let djikstra graph source =
     let nodes_list = Graph.nodes graph in
     let (dist,pred) = initialisation source nodes_list in
     let queue = Q.empty in
-    let queue = fill_queue queue dist in               (* nodes_list ou dist ?  *)
+    let queue = fill_queue queue dist in              
     djisktra_maj queue dist pred graph
   with _ -> failwith "djikstra"
 ;;
@@ -452,10 +455,10 @@ let djikstra graph source =
 (** Retourne le chemin entre la source et la cible *)
 let find_predecessor source target list_pred =
   try
-    Printf.eprintf "\n len predecessors -- %d \n" (List.length list_pred);
+    (**Printf.eprintf "\n len predecessors -- %d \n" (List.length list_pred);*)
     let rec aux cible acc_path =
       let (node,parent) = try List.find (fun x -> cible=(fst x)) list_pred with Not_found -> failwith "pas de cible trouve dans l_pred" in
-      if parent = (infinity,infinity) then begin Printf.eprintf "\n nouveau chemin : %s \n" (string_of_path acc_path); acc_path end
+      if parent = (infinity,infinity) then begin (**Printf.eprintf "\n nouveau chemin : %s \n" (string_of_path acc_path);*) acc_path end
       else aux parent (node::acc_path)
     in aux target []
 with _ -> failwith "find_predecessor : erreur"
@@ -486,7 +489,9 @@ let shortest_path graph source target : path =
  *)
 
 
-(** renvoie les segments d'un chemin  *)
+(** FONCTIONS AUXILIAIRES POUR PLAN--------------------------------------------------------------------------------------------- *)
+ 
+(** renvoie les segments d'un chemin *)
 let segs_of_path path robot =
   let rec aux l acc = match l with
     |[] -> acc
@@ -502,21 +507,80 @@ let rec path_is_valid path_seg segs_hell = match path_seg with
     else path_is_valid q segs_hell
 ;;
 
+(**renvoie un int aleatoire compris entre x et y*)
+let rec random_range x y = match (Random.int(y)) with
+  |value when value < x -> random_range x y
+  |value -> value
+;;
 
+(** retourner les elements d'une liste dans un interval donné *)
+let get_elem_interval deb fin list bool_last_index =
+  let rec aux ind acc = match ind with
+    |x when x = (if bool_last_index then (List.length list) else fin) -> acc
+    |_ -> aux (ind+1) ((List.nth list ind)::acc)
+  in List.rev (aux deb [])
+;;
+
+(** retourne l'index (position) d'un robot dans une list contenant des id_memory/microcode *)
+let get_index_robot list id_memory =
+  let rec aux l acc = match l with
+    |[] -> failwith "impossible : element ne correspond dans la liste"
+    |t::q -> if t = id_memory then acc
+    else aux q (acc+1)
+  in aux list 1
+;;
+
+(** genere la liste des objectifs d'un robot en fonction du nombre de robots *)
+let generate_targets list_microdes targets id_memory =
+  let list_id_microcodes = List.map (fun x -> match x.microcode with
+    | MicroAtom i -> i
+    | MicroList _ -> -100) list_microdes in  
+  let index_robot = get_index_robot list_id_microcodes id_memory in
+  let nbre_robot = List.length list_microdes in
+  let nbre_targets = List.length targets in
+  let nbre_targets_per_robot = nbre_targets / nbre_robot in
+  if index_robot = nbre_robot
+  then
+    get_elem_interval ((index_robot-1) * nbre_targets_per_robot)
+     (((index_robot-1) * nbre_targets_per_robot) + nbre_targets_per_robot) targets true
+  else
+    get_elem_interval ((index_robot-1) * nbre_targets_per_robot)
+     (((index_robot-1) * nbre_targets_per_robot) + nbre_targets_per_robot) targets false
+;;
+
+(** -------------------------------------------------------------------------------------------------------------------------- *)
+
+ 
 let plan visualize observation memory = match memory.objective with
   |Initializing ->
-    let short_path = shortest_path (visibility_graph observation memory) observation.position (List.hd ((World.tree_positions observation.trees) @ [observation.spaceship])) in
-    {
-      known_world = memory.known_world;
-      graph = visibility_graph observation memory;
-      objective = GoingTo(short_path, (World.tree_positions observation.trees) @ [observation.spaceship]);
-      targets = (World.tree_positions observation.trees) @ [observation.spaceship]                  
-    }
+    let tar = World.tree_positions observation.trees in
+    let list_microcodes = observation.messages in
+    if (List.length list_microcodes = 0)
+    then
+      let short_path = shortest_path (visibility_graph observation memory) observation.position (List.hd tar) in
+      {memory with
+        known_world = memory.known_world;
+        graph = visibility_graph observation memory;
+        objective = GoingTo(short_path, tar);
+        targets = tar                  
+      }
+    else
+      let obj = (generate_targets observation.messages tar memory.id) in
+      let short_path = shortest_path (visibility_graph observation memory) observation.position (List.hd (obj @ [observation.spaceship])) in
+      {
+        id = memory.id;
+        start = true;
+        known_world = memory.known_world;
+        graph = visibility_graph observation memory;
+        objective = GoingTo(short_path, tar);
+        targets = obj @ [observation.spaceship]                  
+      }
   |Chopping -> memory
   |GoingTo (path1, path2) ->
+    (**Printf.eprintf "\n identifiant : %d \n" memory.id ;*)
     let path_segments = segs_of_path path1 observation.position in
     let hellsegments = hell_segments (Option.get memory.known_world) in
-    Printf.eprintf "\n chemin is valide : %b \n" (path_is_valid path_segments hellsegments) ;
+    (**Printf.eprintf "\n chemin is valide : %b \n" (path_is_valid path_segments hellsegments) ;*)
     if (path_is_valid path_segments hellsegments)
     then {memory with graph = visibility_graph observation memory}
     else
@@ -580,35 +644,52 @@ Move(Space.angle_of_float angle, observation.max_speed),
     graph = visibility_graph observation memory}
     end
   |GoingTo(path1, path2) ->    
-    let cible = List.hd path1 and target = List.hd memory.targets in
-    Printf.eprintf "\n cible : %f,%f \n" (fst cible) (snd cible)  ;
-    Printf.eprintf "\n target : %f,%f \n" (fst target) (snd target) ;
-    (*let short_path = shortest_path (visibility_graph observation memory) observation.position (List.hd memory.targets) in*)
-    let knw_tree = (Option.get memory.known_world).trees in
-    let tree = World.tree_at knw_tree observation.position in      
-    match tree with
-    |None ->
-      let (x2,y2) = List.hd path1 and (x1,y1) = observation.position in      
-      if (close (x1,y1) (x2,y2) 1.) then
-begin
- let (a,b) = List.hd (List.tl path1) and (c,d) = observation.position in
- let angle = atan2 (b -. d) (a -. c) in
- Move(Space.angle_of_float angle, observation.max_speed),
- {memory with objective = GoingTo(List.tl path1, path2); graph = visibility_graph observation memory}  
-end
-      else
-let (a,b) = List.hd path1 and (c,d) = observation.position in
-let angle = atan2 (b -. d) (a -. c) in
-Move(Space.angle_of_float angle, observation.max_speed),
-{memory with objective = GoingTo(path1, path2); graph = visibility_graph observation memory}
-    |Some t ->
-      if t.tree_position = List.hd memory.targets then
-Move(observation.angle, Space.speed_of_float 0.), {memory with objective = Chopping}
-      else
-let (a,b) = List.hd path1 and (c,d) = observation.position in
-let angle = atan2 (b -. d) (a -. c) in
-Move(Space.angle_of_float angle, observation.max_speed),
-{memory with objective = GoingTo(path1, path2); graph = visibility_graph observation memory}
+    (**let cible = List.hd path1 and target = List.hd memory.targets in
+    Printf.eprintf "\n cible : %f,%f \n" (fst cible) (snd cible)  ;*)
+    Printf.eprintf "\n robot : %d  --  targets : %s \n" memory.id (string_of_path memory.targets) ;
+    Printf.eprintf "\n chemin : %s \n" (string_of_path path1) ;
+    (** Printf.eprintf "\n microcodes : %d \n" (List.length observation.messages);*)
+    if memory.id = -1
+    then
+      Wait,{memory with id = (random_range 1 1000) ; graph = visibility_graph observation memory}
+    else
+      begin
+        (**let list_microcodes = observation.messages in
+           if (List.length list_microcodes = 0) then*)
+        
+        if memory.start = false then
+          Put(MicroAtom memory.id, duration_of_int 200),
+          {memory with objective = Initializing; graph = visibility_graph observation memory}
+        else
+          let knw_tree = (Option.get memory.known_world).trees in
+          let tree = World.tree_at knw_tree observation.position in      
+          match tree with
+          |None ->
+            let (x2,y2) = List.hd path1 and (x1,y1) = observation.position in      
+            if (close (x1,y1) (x2,y2) 1.) then
+              if (List.length memory.targets = 1) then
+                Wait, memory
+              else
+                begin
+                  let (a,b) = List.hd (List.tl path1) and (c,d) = observation.position in
+                  let angle = atan2 (b -. d) (a -. c) in
+                  Move(Space.angle_of_float angle, observation.max_speed),
+                  {memory with objective = GoingTo(List.tl path1, path2); graph = visibility_graph observation memory}  
+                end
+            else
+              let (a,b) = List.hd path1 and (c,d) = observation.position in
+              let angle = atan2 (b -. d) (a -. c) in
+              Move(Space.angle_of_float angle, observation.max_speed),
+              {memory with objective = GoingTo(path1, path2); graph = visibility_graph observation memory}
+          |Some t ->
+            if t.tree_position = List.hd memory.targets then
+              Move(observation.angle, Space.speed_of_float 0.), {memory with objective = Chopping}
+            else
+              let (a,b) = List.hd path1 and (c,d) = observation.position in
+              let angle = atan2 (b -. d) (a -. c) in
+              Move(Space.angle_of_float angle, observation.max_speed),
+              {memory with objective = GoingTo(path1, path2); graph = visibility_graph observation memory}
+      end
 ;;
  
  
