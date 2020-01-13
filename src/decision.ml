@@ -344,7 +344,7 @@ let visibility_graph observation memory =
  
     let list_polygon : ((kind polygon) list) = polygons (Option.get memory.known_world).space ((=)Hell) in
 
-    let list_polygon_souff : ((kind polygon) list) = polygons observation.around ((<>)Hell) in
+    let list_polygon_souff : ((kind polygon) list) = polygons (Option.get memory.known_world).space ((<>)Hell) in
     let poly_souff_notAllowed_speed = polygons_not_allowed_margin_speed list_polygon_souff (10.) observation.speed in
    
    
