@@ -1,5 +1,0 @@
-(library
-  (name charInfo_width)
-  (public_name charInfo_width)
-  (libraries result camomile)
-  (flags (:standard -safe-string)))

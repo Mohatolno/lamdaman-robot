@@ -1,6 +1,0 @@
-(library
-  (name test)
-  (flags (:standard -safe-string))
-  (libraries charInfo_width)
-  (inline_tests)
-  (preprocess (pps ppx_expect)))
