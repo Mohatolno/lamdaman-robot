@@ -29,6 +29,7 @@ depends: [
   "odoc"                 { with-doc            }
   "cohttp"               { >= "2.1.2"          }
   "cohttp-lwt-unix"      { >= "2.1.2"          }
+  "camlimages"
 ]
 
 build: ["dune" "build" "-p" name "-j" jobs]

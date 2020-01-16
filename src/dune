@@ -8,7 +8,8 @@
           world worldGenerator visualizer communication decision space game
           priorityQueue ext \ lambdaDriver
   )
- (libraries cmdliner lwt lwt.unix yojson ppx_deriving_yojson graphics threads.posix)
+ (libraries cmdliner lwt lwt.unix yojson ppx_deriving_yojson graphics camlimages.core camlimages.gif camlimages.jpeg camlimages.png
+   camlimages.tiff camlimages.xpm camlimages.graphics threads.posix)
 )
 
 (executable

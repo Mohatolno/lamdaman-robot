@@ -125,8 +125,11 @@ let display_team team =
   display_spaceship team_color team.spaceship;
   List.iter (display_robot team_color) team.robots
 
+
+let backgrnd_img : image option ref = ref None;;
 let display world =
   clear_graph ();
+  draw_image (Option.get !backgrnd_img) 0 0;
   display_space world.space;
   List.iter display_tree world.trees;
   List.iter display_team world.teams
@@ -166,9 +169,17 @@ let bounding_box_world world =
          List.map (fun t -> t.tree_position) world.trees
        @ List.map (fun (t : team) -> t.spaceship) world.teams))
 
+
+
+    
+    
 let initialize new_world =
   let bbox = bounding_box_world new_world in
   open_graph (Printf.sprintf " %dx%d" !res_x !res_y);
+  backgrnd_img := (let img = Jpeg.load "img/moon-2048727_1920.jpg" [] in
+  let g = Graphic_image.of_image img in
+  (Some g));
+  draw_image (Option.get !backgrnd_img) 0 0;
   state := Some new_world;
   focus_on_box bbox;
   display new_world;
