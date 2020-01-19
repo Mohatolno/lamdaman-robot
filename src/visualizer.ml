@@ -45,7 +45,7 @@ let scale size = max 1 (int_of_float (size *. !zoom))
 
 let color_of_thing = function
   | World.Hell ->
-     red
+     rgb 140 28 97
   | World.Ground f ->
      let c = int_of_float (float_of_int 255 *. f) in
      rgb c c c
@@ -66,7 +66,7 @@ let display_space space =
   |> List.iter display_polygon
 
 let display_tree { tree_position; branches } =
-  set_color (rgb 200 200 (min 255 (128 + branches)));
+  set_color (rgb 68 237 (min 26 (128 + branches)));
   fill_circle (t_x (x_ tree_position)) (t_y (y_ tree_position)) (scale 5.)
 
 let screen_bounding_box positions =
@@ -121,12 +121,19 @@ let random_color =
   fun i -> c.(i mod m)
 
 let display_team team =
-  let team_color = random_color team.team_identifier in
-  display_spaceship team_color team.spaceship;
-  List.iter (display_robot team_color) team.robots
+  (**let team_color = random_color team.team_identifier in*) 
+  let team_color = rgb 242 152 27 in
+  List.iter (display_robot team_color) team.robots;
+  display_spaceship team_color team.spaceship
+ 
 
 
 let backgrnd_img : image option ref = ref None;;
+let backgrnd_img_list = ["img/astronomy-3199541.jpg"; "img/earth-11595.jpg"; "img/planets-1068198.jpg"; "img/moon-2048727_1920.jpg";
+			 "img/space-54999.jpg"; "img/space-1796654_1920.jpg";
+			 "img/spaceship-3827558_1920.jpg"; "img/wormhole-739872.jpg"];;
+let img_index = ref 0;;
+  
 let display world =
   clear_graph ();
   draw_image (Option.get !backgrnd_img) 0 0;
@@ -171,14 +178,18 @@ let bounding_box_world world =
 
 
 
-    
+(**renvoie un int aleatoire compris entre x et y*)
+let rec random_range x y = match (Random.int(y)) with
+  |value when value < x -> random_range x y
+  |value -> value
+;;
     
 let initialize new_world =
   let bbox = bounding_box_world new_world in
   open_graph (Printf.sprintf " %dx%d" !res_x !res_y);
-  backgrnd_img := (let img = Jpeg.load "img/moon-2048727_1920.jpg" [] in
-  let g = Graphic_image.of_image img in
-  (Some g));
+  img_index := (random_range 0 8);
+  backgrnd_img := (let img = Jpeg.load (List.nth backgrnd_img_list !img_index) [] in
+  let g = Graphic_image.of_image img in (Some g));
   draw_image (Option.get !backgrnd_img) 0 0;
   state := Some new_world;
   focus_on_box bbox;
@@ -188,11 +199,13 @@ let initialize new_world =
 let pause () = ignore (wait_next_event [Key_pressed])
 
 let show_info world =
-  set_color white;
-  fill_rect 0 0 100 50;
-  moveto 10 10;
   set_color black;
-  draw_string (Printf.sprintf "#trees : %d\n" (World.number_of_branches world))
+  fill_rect 0 0 100 40;
+  moveto 10 25;
+  set_color red;
+  draw_string (Printf.sprintf "#braches : %d\n" (World.number_of_branches world));
+  moveto 10 10;
+  draw_string (Printf.sprintf "#trees   : %d\n" (List.length (world.trees)))
 
 let update force _old_world new_world =
   if not force then auto_synchronize false;
@@ -217,23 +230,48 @@ let show_node (x, y) =
   set_color blue;
   fill_circle (t_x x) (t_y y) 5
 
-let show_edge (x0, y0) (x1, y1) =
+(**let show_edge (x0, y0) (x1, y1) =
   set_color blue;
   set_line_width 2;
   moveto (t_x x0) (t_y y0);
   lineto (t_x x1) (t_y y1)
+ *)
 
-let show_graph g =
+let show_edge (x0, y0) (x1, y1) observation (cx,cy) =
+  let (a,b) = observation.position in
+  if a = x1 && b = y1 && cx = x0 && cy = y0 then
+    begin
+      set_color red;
+      set_line_width 4;
+      moveto (t_x x0) (t_y y0);
+      lineto (t_x x1) (t_y y1);
+    end
+  else if a = x1 && b = y1 then
+    begin
+      set_color (rgb 227 217 32);
+      set_line_width 1;
+      moveto (t_x x0) (t_y y0);
+      lineto (t_x x1) (t_y y1);
+    end
+  else
+    begin
+      set_color blue;
+      set_line_width 1;
+      moveto (t_x x0) (t_y y0);
+      lineto (t_x x1) (t_y y1);
+    end
+
+let show_graph g observation target =
   auto_synchronize false;
   let ns = Graph.nodes g in List.(
   iter show_node ns;
-  iter (fun n -> iter (fun (_, n', _) -> show_edge n n') (Graph.out g n)) ns;
+  iter (fun n -> iter (fun (_, n', _) -> show_edge n n' observation target) (Graph.out g n)) ns;
   synchronize ();
 )
 
 let show_milestone (x, y) =
   set_color yellow;
-  fill_circle (t_x x) (t_y y) 5
+  fill_circle (t_x x) (t_y y) 10
 
 let show_path path =
   auto_synchronize false;
