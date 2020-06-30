@@ -130,8 +130,7 @@ let display_team team =
 
 let backgrnd_img : image option ref = ref None;;
 let backgrnd_img_list = ["img/astronomy-3199541.jpg"; "img/earth-11595.jpg"; "img/planets-1068198.jpg"; "img/moon-2048727_1920.jpg";
-			 "img/space-54999.jpg"; "img/space-1796654_1920.jpg";
-			 "img/spaceship-3827558_1920.jpg"; "img/wormhole-739872.jpg"];;
+			 "img/space-1796654_1920.jpg"; "img/spaceship-3827558_1920.jpg"; "img/wormhole-739872.jpg"];;
 let img_index = ref 0;;
   
 let display world =
@@ -187,7 +186,7 @@ let rec random_range x y = match (Random.int(y)) with
 let initialize new_world =
   let bbox = bounding_box_world new_world in
   open_graph (Printf.sprintf " %dx%d" !res_x !res_y);
-  img_index := (random_range 0 8);
+  img_index := (random_range 0 7);
   backgrnd_img := (let img = Jpeg.load (List.nth backgrnd_img_list !img_index) [] in
   let g = Graphic_image.of_image img in (Some g));
   draw_image (Option.get !backgrnd_img) 0 0;

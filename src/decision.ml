@@ -222,6 +222,27 @@ let discover visualize observation memory =
  *)
 
 
+
+(** trie une liste de paire de (position * distance) *)
+let rec rev_append left right = match left with
+    [] -> right
+   |t::q -> rev_append q (t::right)
+;;  
+let insert (x,d) l = 
+  let rec aux ll acc = match ll with
+    |[] -> rev_append acc [(x,d)]
+    |(n,d')::q -> if d=d' then rev_append acc ll
+		  else if d<d' then rev_append acc ((x,d)::ll) 
+		  else aux q ((n,d')::acc) 
+  in aux l []
+;;
+let sort_list l =
+  let rec aux ll acc = match ll with
+    | [] -> acc
+    | t::q -> aux q (insert t acc)
+  in aux l []
+;;
+
 (** renvoie une liste de segments à partir d'une liste de position *)
 let set_segments l =
   try
@@ -320,6 +341,20 @@ let increase_seg poly_list inc =
   with _ -> failwith "increase_seg"
 ;;
 
+(** prend une liste de polygons et renvoie une nouvelle liste avec les sommets elargis*)
+(**let extend_polygons poly_list inc =
+  try
+    let rec aux l acc = match l with
+      |[] -> acc
+      |t::q -> let ((x1,y1), (x2,y2), cote) = min_max_position_dist_poly t in
+		   aux q ((Space.make [(x1 -. inc,y1 -. inc);
+				      (x2 +. inc,y2 -. cote -. inc);
+				      (x2 +. inc,y2 +. inc);
+				      (x1 -. inc,y1 +. cote +. inc)] (Space.content t))::acc)
+    in aux poly_list []
+  with _ -> failwith "extend_polygons"
+;;*)
+
 
 (** retourne les polygones de souffrance qui depassent la valeur de la marge de la vitesse du robot en fonction d'un seuil
     [marginSpeed] en %,
@@ -374,8 +409,35 @@ let visibility_graph observation memory =
     let segments_not_cut_hells  = valid_segments all_segments segments_hell in
     let list_segments_not_cut_grounds = valid_segments segments_not_cut_hells segments_ground_notAllow_speed in
     
-    let list_edges = set_edges list_segments_not_cut_grounds in
-    Graph.make list_nodes list_edges
+    let edges = set_edges list_segments_not_cut_grounds in
+    (**(**---------------------------------------------------------- LEE ----------------------------------------------------------*)
+    let list_polygon : ((kind polygon) list) = polygons (Option.get memory.known_world).space ((=)Hell) in
+    let hells_extended = extend_polygons list_polygon 1. in
+    let list_polygon_souff : ((kind polygon) list) = polygons (Option.get memory.known_world).space ((<>)Hell) in
+    let polygon_souff_extended = extend_polygons list_polygon_souff 1. in
+    let poly_souff_notAllowed_speed = polygons_not_allowed_margin_speed list_polygon_souff (10.) observation.speed in
+    let poly_souff_notAllowed_speed_extended = extend_polygons poly_souff_notAllowed_speed 1. in
+    
+    let nodes_arbres : (Graph.node list)  = tree_positions (Option.get memory.known_world).trees in
+    let nodes_hell = List.flatten (List.map (fun x -> vertices x) hells_extended) in
+    let nodes_hell_notIN_ground_notAllowed_speed =
+      List.filter (fun x -> false=(inside_ground (create_space poly_souff_notAllowed_speed_extended) x)) nodes_hell in
+    let nodes_ground = List.flatten (List.map (fun x -> vertices x) polygon_souff_extended) in
+    
+    let nodes_ground_notIN_hell = List.filter (fun x -> false=(inside_hell (Option.get memory.known_world) x)) nodes_ground in
+    
+    let list_nodes =
+      observation.position::(observation.spaceship)::(nodes_arbres @ nodes_hell_notIN_ground_notAllowed_speed @ nodes_ground_notIN_hell) in
+
+    let all_segments = set_segments list_nodes in
+    let segments_hell = hell_segments (Option.get memory.known_world) in
+    let segments_ground_notAllow_speed = List.flatten (List.map (fun p -> polygon_segments p) poly_souff_notAllowed_speed) in
+    
+    let segments_not_cut_hells  = valid_segments all_segments segments_hell in
+    let list_segments_not_cut_grounds = valid_segments segments_not_cut_hells segments_ground_notAllow_speed in     
+    let edges = set_edges list_segments_not_cut_grounds in *)
+    
+    Graph.make list_nodes edges
   with _ -> failwith "visibility_graph : erreur"
 ;;
   
@@ -639,26 +701,6 @@ let generate_targets list_microdes targets id_memory =
 			(((index_robot-1) * nbre_targets_per_robot) + nbre_targets_per_robot) targets false
 ;;
   
-(** trie une liste de paire de (position * distance) *)
-let rec rev_append left right = match left with
-    [] -> right
-   |t::q -> rev_append q (t::right)
-;;
-let insert (x,d) l = 
-  let rec aux ll acc = match ll with
-    |[] -> rev_append acc [(x,d)]
-    |(n,d')::q -> if d=d' then rev_append acc ll
-		  else if d<d' then rev_append acc ((x,d)::ll) 
-		  else aux q ((n,d')::acc) 
-  in aux l []
-;;
-let sort_list l =
-  let rec aux ll acc = match ll with
-    | [] -> acc
-    | t::q -> aux q (insert t acc)
-  in aux l []
-;;
-
 
 (** 
     cettes fonction retourne une liste des arbres triée du plus proche au plus eloignée de la position initiale d'un robot.
